@@ -20,7 +20,7 @@ A small program which makes a rofi game launcher menu possible by creating .desk
     cd rofi-games && make install
     ```
 
-Uninstall with `make uninsntall`
+Uninstall with `make uninstall`
 
 ## Usage
 
