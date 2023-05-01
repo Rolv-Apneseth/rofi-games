@@ -1,8 +1,13 @@
-# rofi-games
+<h1 align="center">rofi-games</h1>
 
-A small program which makes a rofi game launcher menu possible by creating .desktop entries for games
+<p align="center">A small program which makes a `rofi` game launcher menu possible by creating `.desktop` entries for games</p>
 
-![demo_image](https://user-images.githubusercontent.com/69486699/235387869-ecf5aa58-99bb-46d2-96e8-871773adc4d1.png)
+<p align="center">
+  <a href="https://crates.io/crates/rofi-games"><img src="https://img.shields.io/crates/v/rofi-games.svg?style=flat-square" alt="crates.io link"></a>
+  <img src="https://img.shields.io/badge/License-GPL_v2-blue.svg" alt="License: GPL v2" />
+</p>
+
+<img alt="rofi-games - demo image" src="https://user-images.githubusercontent.com/69486699/235387869-ecf5aa58-99bb-46d2-96e8-871773adc4d1.png" />
 
 ## Installation
 
@@ -21,6 +26,28 @@ A small program which makes a rofi game launcher menu possible by creating .desk
     ```
 
 Uninstall with `make uninstall`
+
+---
+
+### Cargo
+
+```bash
+cargo install rofi-games
+```
+
+#### Note
+
+If installing with `cargo`, make sure the `bin` folder is on your `$PATH` by adding the following line to your `.bashrc` or `.xprofile` etc.:
+
+```bash
+export PATH="${PATH:+${PATH}}:$HOME/.cargo/bin"
+```
+
+If you have set `$CARGO_HOME`, use this instead:
+
+```bash
+export PATH="${PATH:+${PATH}}:$CARGO_HOME/bin"
+```
 
 ## Usage
 
