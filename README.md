@@ -24,19 +24,27 @@ Uninstall with `make uninsntall`
 
 ## Usage
 
-After installing, simply run `rofi-games` to generate `.desktop` files at `$XDG_DATA_HOME/applications/rofi_games`
+After installing, simply run `rofi-games sync` to generate `.desktop` files at `$XDG_DATA_HOME/applications/rofi_games`
 
 To display a menu with these using `rofi`, use the following command:
 
 ```bash
-rofi -show drun -drun-categories SteamLibrary
+rofi -show drun -drun-categories RofiGames -show-icons
 ```
 
 These can be combined for an easy one-liner to run with a keybind:
 
 ```bash
-rofi-games && rofi -show drun -drun-categories SteamLibrary
+rofi-games sync && rofi -show drun -drun-categories RofiGames -show-icons
 ```
+
+### Commands
+
+- **sync**: Sync desktop entries by deleting any entries which don't match any currently detected game, then creating desktop entries for any detected games which don't have a matching desktop entry. This is what I would recommend as the default way to run this program
+
+- **reset**: Reset desktop entries by completely deleting the current desktop entries folder this program creates, then re-generating desktop entries for all detected games
+
+- **delete**: Simply deletes the desktop entries folder created by this program
 
 ## Theme
 
@@ -49,7 +57,7 @@ The theme used in the demo image can be found in my dotfiles [here](https://gith
 3. Run `rofi` with `-theme games`, so the full command becomes:
 
     ```bash
-    rofi-games && rofi -show drun -drun-categories RofiGames -theme games
+    rofi-games sync && rofi -show drun -drun-categories RofiGames -theme games
     ```
 
 4. Modify config files to suit your needs / preferences
@@ -57,7 +65,6 @@ The theme used in the demo image can be found in my dotfiles [here](https://gith
 ## Todo
 
 - Add install methods (`crate` and possibly `AUR`)
-- Make into proper cli which can accept flags to take different actions e.g. there are already functions defined for deleting all desktop entries, or forcing a complete refresh of all entries, which are currently unused
 - Support more than just Steam games (depends how difficult this is to implement)
 
 ## Credits
