@@ -30,11 +30,6 @@ impl DesktopEntriesControl {
             games.append(&mut library.get_games()?);
         }
 
-        // Ensure applications folder is available
-        if !dir_desktop_files.is_dir() {
-            create_dir(&dir_desktop_files)?;
-        }
-
         Ok(DesktopEntriesControl {
             dir_steam,
             dir_desktop_files,
@@ -45,6 +40,8 @@ impl DesktopEntriesControl {
     /// Syncs desktop entries by removing old entries which no longer have associated games and
     /// creating new entries for games which don't have one
     pub fn sync_entries(&self) -> Result<(), io::Error> {
+        self.ensure_dir_desktop_files()?;
+
         self.delete_dead_entries()?;
         self.create_entries()
     }
@@ -53,12 +50,16 @@ impl DesktopEntriesControl {
     /// new entries for all games
     pub fn reset_entries(&self) -> Result<(), io::Error> {
         self.delete_all_entries()?;
+        self.ensure_dir_desktop_files()?;
         self.create_entries()
     }
 
     /// Delete desktop entries folder and all it's contents
     pub fn delete_all_entries(&self) -> Result<(), io::Error> {
-        remove_dir_all(&self.dir_desktop_files)
+        if self.dir_desktop_files.is_dir() {
+            remove_dir_all(&self.dir_desktop_files)?;
+        };
+        Ok(())
     }
 
     /// Deletes entries which don't have a matching game associated with them
@@ -143,6 +144,14 @@ impl DesktopEntriesControl {
         let mut file = File::create(path_entry)?;
         file.write_all(entry_contents.as_bytes())?;
 
+        Ok(())
+    }
+
+    /// Ensure folder for desktop entries is available
+    fn ensure_dir_desktop_files(&self) -> Result<(), io::Error> {
+        if !self.dir_desktop_files.is_dir() {
+            create_dir(&self.dir_desktop_files)?;
+        }
         Ok(())
     }
 }
