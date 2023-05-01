@@ -4,6 +4,7 @@ version = "0.0.1"
 edition = "2021"
 
 [dependencies]
+clap = { version = "4.2.5", features = ["derive", "wrap_help"] }
 regex = "1.8.1"
 
 [profile.release]
