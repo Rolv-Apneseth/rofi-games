@@ -3,7 +3,8 @@
 <p align="center">A small program which makes a `rofi` game launcher menu possible by creating `.desktop` entries for games</p>
 
 <p align="center">
-  <a href="https://crates.io/crates/rofi-games"><img src="https://img.shields.io/crates/v/rofi-games.svg?style=flat-square" alt="crates.io link"></a>
+  <img src="https://img.shields.io/github/v/tag/rolv-apneseth/rofi-games?label=version" alt="version" />
+  <a href="https://crates.io/crates/rofi-games"><img src="https://img.shields.io/crates/v/rofi-games.svg" alt="crates.io link"></a>
   <img src="https://img.shields.io/badge/License-GPL_v2-blue.svg" alt="License: GPL v2" />
 </p>
 
@@ -49,6 +50,14 @@ If you have set `$CARGO_HOME`, use this instead:
 export PATH="${PATH:+${PATH}}:$CARGO_HOME/bin"
 ```
 
+---
+
+### AUR
+
+```bash
+paru -S rofi-games
+```
+
 ## Usage
 
 After installing, simply run `rofi-games sync` to generate `.desktop` files at `$XDG_DATA_HOME/applications/rofi_games`
@@ -91,7 +100,6 @@ The theme used in the demo image can be found in my dotfiles [here](https://gith
 
 ## Todo
 
-- Add install methods (`crate` and possibly `AUR`)
 - Support more than just Steam games (depends how difficult this is to implement)
 
 ## Credits
