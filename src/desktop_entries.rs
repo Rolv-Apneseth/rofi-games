@@ -111,11 +111,9 @@ impl DesktopEntriesControl {
             }
 
             // Skip if title could not be found in it's app manifest file
-            let Some(title) = game.get_title()? else {
-                continue;
-            };
-
-            self.create_entry(path_entry, path_box_art, &game.appid, title)?;
+            if let Some(title) = game.get_title()? {
+                self.create_entry(path_entry, path_box_art, &game.appid, title)?;
+            }
         }
 
         Ok(())
