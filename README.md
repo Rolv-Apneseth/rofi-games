@@ -101,6 +101,8 @@ The theme used in the demo image can be found in my dotfiles [here](https://gith
 ## Todo
 
 - Support more than just Steam games (depends how difficult this is to implement)
+- Change approach to no longer use desktop entries so as to not clutter up the `drun` menu
+- Figure out how to make this into actual `rofi` extension to be run with `-modi`
 
 ## Credits
 
