@@ -69,6 +69,10 @@ The theme used in the demo image can be found in my dotfiles [here](https://gith
 
 ## Credits
 
+### Idea
 The original idea belongs (as far as I know) to [@ntcarlson](https://github.com/ntcarlson), so big thanks to them. The original script I used to use for this is from [this Reddit post](https://www.reddit.com/r/unixporn/comments/p5b0qv/i3_misusing_rofi_as_a_game_launcher/) they shared.
 
 However, I had modified it as I didn't like that sub menu for each game, and the script didn't work to update entries sometimes (as well as it didn't remove old entries for games I no longer had installed), so eventually I decided to have a go at making a Rust program out of it.
+
+### Plugin
+Converting to an actual `rofi` plugin is thanks to the author of [rofi-mode.rs library](https://github.com/SabrinaJewson/rofi-mode.rs), and thanks also to the author [rofi-vscode-mode](https://github.com/fuljo/rofi-vscode-mode) as that was very helpful as an example for both `rofi-mode` usage, the `Makefile` and `PKGBUILD`.
