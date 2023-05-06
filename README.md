@@ -1,6 +1,6 @@
 <h1 align="center">rofi-games</h1>
 
-<p align="center">A small program which makes a `rofi` game launcher menu possible by creating `.desktop` entries for games</p>
+<p align="center">A rofi plugin which adds a mode that will list available games for launch along with their box art. Requires a good theme for the best results.</p>
 
 <p align="center">
   <img src="https://img.shields.io/github/v/tag/rolv-apneseth/rofi-games?label=version" alt="version" />
@@ -30,28 +30,6 @@ Uninstall with `make uninstall`
 
 ---
 
-### Cargo
-
-```bash
-cargo install rofi-games
-```
-
-#### Note
-
-If installing with `cargo`, make sure the `bin` folder is on your `$PATH` by adding the following line to your `.bashrc` or `.xprofile` etc.:
-
-```bash
-export PATH="${PATH:+${PATH}}:$HOME/.cargo/bin"
-```
-
-If you have set `$CARGO_HOME`, use this instead:
-
-```bash
-export PATH="${PATH:+${PATH}}:$CARGO_HOME/bin"
-```
-
----
-
 ### AUR
 
 ```bash
@@ -60,27 +38,13 @@ paru -S rofi-games
 
 ## Usage
 
-After installing, simply run `rofi-games sync` to generate `.desktop` files at `$XDG_DATA_HOME/applications/rofi_games`
-
-To display a menu with these using `rofi`, use the following command:
+After installing, for (very) basic usage simply run the following command:
 
 ```bash
-rofi -show drun -drun-categories RofiGames -show-icons
+rofi -modi games -show games -show-icons
 ```
 
-These can be combined for an easy one-liner to run with a keybind:
-
-```bash
-rofi-games sync && rofi -show drun -drun-categories RofiGames -show-icons
-```
-
-### Commands
-
-- **sync**: Sync desktop entries by deleting any entries which don't match any currently detected game, then creating desktop entries for any detected games which don't have a matching desktop entry. This is what I would recommend as the default way to run this program
-
-- **reset**: Reset desktop entries by completely deleting the current desktop entries folder this program creates, then re-generating desktop entries for all detected games
-
-- **delete**: Simply deletes the desktop entries folder created by this program
+However, it is highly recommended to use a theme that can properly show off the box art images
 
 ## Theme
 
@@ -93,16 +57,16 @@ The theme used in the demo image can be found in my dotfiles [here](https://gith
 3. Run `rofi` with `-theme games`, so the full command becomes:
 
     ```bash
-    rofi-games sync && rofi -show drun -drun-categories RofiGames -theme games
+    rofi -modi games -show games -theme games
     ```
 
-4. Modify config files to suit your needs / preferences
+    - Yes I know, *games games games*, at least it's easy to remember
+
+4. Modify the theme to suit your needs / preferences by editing the `.rasi` files
 
 ## Todo
 
 - Support more than just Steam games (depends how difficult this is to implement)
-- Change approach to no longer use desktop entries so as to not clutter up the `drun` menu
-- Figure out how to make this into actual `rofi` extension to be run with `-modi`
 
 ## Credits
 

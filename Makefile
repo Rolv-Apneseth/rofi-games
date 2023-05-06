@@ -1,9 +1,11 @@
-bin_name := rofi-games
-bin_path := ~/.local/bin/${bin_name}
+LIB_NAME := librofi_games.so
+PLUGIN_NAME := games.so
+PLUGIN_PATH := /lib/rofi/${PLUGIN_NAME}
 
 install:
-	cargo build --release
-	cp ./target/release/${bin_name} ${bin_path}
+	cargo build --release --lib
+	cp ./target/release/${LIB_NAME} ${PLUGIN_PATH}
+	cargo clean
 
 uninstall:
-	rm ${bin_path}
+	rm ${PLUGIN_PATH}
