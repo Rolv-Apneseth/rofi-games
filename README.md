@@ -4,7 +4,6 @@
 
 <p align="center">
   <img src="https://img.shields.io/github/v/tag/rolv-apneseth/rofi-games?label=version" alt="version" />
-  <a href="https://crates.io/crates/rofi-games"><img src="https://img.shields.io/crates/v/rofi-games.svg" alt="crates.io link"></a>
   <img src="https://img.shields.io/badge/License-GPL_v2-blue.svg" alt="License: GPL v2" />
 </p>
 

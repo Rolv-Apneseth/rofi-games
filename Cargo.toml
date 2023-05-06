@@ -1,7 +1,7 @@
 [package]
 name = "rofi-games"
 authors = ["Rolv Apneseth"]
-description = "A rofi plugin which adds a mode that will list available games for launch along with their box art"
+description = "A rofi plugin which adds a mode to list available games for launch along with their box art"
 version = "1.0.2"
 edition = "2021"
 license-file = "LICENSE"
