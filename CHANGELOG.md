@@ -1,8 +1,10 @@
 # Changelog
 
-## 1.0.1 (2023-05-06)
+## 1.0.2 (2023-05-06)
 
-### Changes
+- Attempt #2 to get `Makefile` to work for `PKGBUILD`
+
+## 1.0.1 (2023-05-06)
 
 - Attempt to adjust `Makefile` so that it works for `PKGBUILD`
 
