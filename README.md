@@ -64,9 +64,10 @@ The theme used in the demo image can be found in my dotfiles [here](https://gith
 
 4. Modify the theme to suit your needs / preferences by editing the `.rasi` files
 
-## Todo
+## Currently supported launchers / game sources
 
-- Support more than just Steam games (depends how difficult this is to implement)
+- Steam
+- Heroic Games Launcher
 
 ## Credits
 
