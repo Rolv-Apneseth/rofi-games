@@ -3,8 +3,9 @@
 <p align="center">A rofi plugin which adds a mode that will list available games for launch along with their box art. Requires a good theme for the best results.</p>
 
 <p align="center">
-  <img src="https://img.shields.io/github/v/tag/rolv-apneseth/rofi-games?label=version" alt="version" />
-  <img src="https://img.shields.io/badge/License-GPL_v2-blue.svg" alt="License: GPL v2" />
+  <img src="https://img.shields.io/badge/License-GPL_v2-green.svg" alt="License: GPL v2" />
+  <img src="https://img.shields.io/github/v/tag/rolv-apneseth/rofi-games?label=version&color=magenta" alt="version" />
+  <a href="https://aur.archlinux.org/packages/rofi-games"><img src="https://img.shields.io/aur/version/rofi-games" alt="AUR version" /></a>
 </p>
 
 <img alt="rofi-games - demo image" src="https://user-images.githubusercontent.com/69486699/235387869-ecf5aa58-99bb-46d2-96e8-871773adc4d1.png" />
