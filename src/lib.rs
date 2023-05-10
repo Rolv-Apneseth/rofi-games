@@ -34,8 +34,12 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
         // Populate entries
         let mut entries = Vec::new();
 
-        entries.append(&mut steam.get_games()?);
-        entries.append(&mut heroic.get_games()?);
+        if let Ok(mut steam_games) = steam.get_games() {
+            entries.append(&mut steam_games);
+        }
+        if let Ok(mut heroic_games) = heroic.get_games() {
+            entries.append(&mut heroic_games);
+        }
 
         Ok(Mode { entries, api })
     }
