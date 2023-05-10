@@ -31,3 +31,8 @@ pub fn get_env(env: &str, backup: &str) -> String {
         _ => backup.to_owned(),
     }
 }
+
+/// Cleans up parsed game title
+pub fn clean_game_title(title: &str) -> String {
+    title.replace(['™', '®'], "")
+}

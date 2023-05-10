@@ -1,17 +1,17 @@
+use games::{heroic::Heroic, steam::Steam, Game, Launcher};
 use helpers::get_env;
 use std::{
-    path::Path,
+    path::PathBuf,
     process::{self, Command},
 };
 
+mod games;
 mod helpers;
-mod steam;
 
 use crate::helpers::get_str_from_path_buf;
-use steam::{get_steam_games, SteamGame};
 
 struct Mode<'rofi> {
-    entries: Vec<SteamGame>,
+    entries: Vec<Game>,
     api: rofi_mode::Api<'rofi>,
 }
 
@@ -21,12 +21,21 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
     fn init(mut api: rofi_mode::Api<'rofi>) -> Result<Self, ()> {
         api.set_display_name("Games");
 
-        let path_steam_dir = Path::new(&get_env("HOME", "~/")).join(".local/share/Steam");
+        let path_home = PathBuf::from(get_env("HOME", "~/"));
+        let path_config_home = PathBuf::from(get_env("XDG_CONFIG_HOME", "~/.config"));
 
-        let entries = match get_steam_games(&path_steam_dir) {
-            Ok(games) => games,
-            Err(_) => return Err(()),
-        };
+        let path_steam_dir = path_home.join(".local/share/Steam");
+        let path_heroic_config = path_config_home.join("heroic");
+
+        // Controller / manager for each supported launcher
+        let steam = Steam::new(path_steam_dir);
+        let heroic = Heroic::new(path_heroic_config);
+
+        // Populate entries
+        let mut entries = Vec::new();
+
+        entries.append(&mut steam.get_games()?);
+        entries.append(&mut heroic.get_games()?);
 
         Ok(Mode { entries, api })
     }

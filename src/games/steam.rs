@@ -2,39 +2,66 @@ use std::{
     collections::VecDeque,
     fs::{read_dir, File},
     io::{self, BufRead, BufReader},
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
 
 use crate::helpers::get_regex;
 
-/// Get all available steam games
-pub fn get_steam_games(steam_dir: &Path) -> Result<Vec<SteamGame>, io::Error> {
-    let mut games = Vec::new();
+use super::{Game, Launcher};
 
-    for library in get_steam_libraries(steam_dir)? {
-        games.append(&mut library.get_games()?);
-    }
-
-    Ok(games)
+pub struct Steam {
+    path_steam_dir: PathBuf,
 }
 
-/// Get all available steam libraries by parsing the libraryfolders.vdf file
-pub fn get_steam_libraries(steam_dir: &Path) -> Result<Vec<SteamLibrary>, io::Error> {
-    let mut libraries = Vec::new();
-
-    let libraries_vdg_path = steam_dir.join("steamapps").join("libraryfolders.vdf");
-    let libraries_vdg = File::open(libraries_vdg_path)?;
-
-    let library_regex = get_regex("(\")/(.*)(\")");
-
-    for line in BufReader::new(libraries_vdg).lines().flatten() {
-        for capture in library_regex.captures_iter(&line) {
-            let library_path = PathBuf::from(capture[0].replace('"', ""));
-            libraries.push(SteamLibrary::new(library_path, steam_dir.to_owned()))
-        }
+impl Steam {
+    pub fn new(path_steam_dir: PathBuf) -> Self {
+        Steam { path_steam_dir }
     }
+    /// Get all available steam libraries by parsing the libraryfolders.vdf file
+    pub fn get_steam_libraries(&self) -> Result<Vec<SteamLibrary>, io::Error> {
+        let mut libraries = Vec::new();
 
-    Ok(libraries)
+        let libraries_vdg_path = self
+            .path_steam_dir
+            .join("steamapps")
+            .join("libraryfolders.vdf");
+        let libraries_vdg = File::open(libraries_vdg_path)?;
+
+        let library_regex = get_regex("(\")/(.*)(\")");
+
+        for line in BufReader::new(libraries_vdg).lines().flatten() {
+            for capture in library_regex.captures_iter(&line) {
+                let library_path = PathBuf::from(capture[0].replace('"', ""));
+                libraries.push(SteamLibrary::new(
+                    library_path,
+                    self.path_steam_dir.to_owned(),
+                ))
+            }
+        }
+
+        Ok(libraries)
+    }
+}
+
+impl Launcher for Steam {
+    /// Get all available steam games
+    fn get_games(&self) -> Result<Vec<Game>, ()> {
+        let mut steam_games = Vec::new();
+
+        let Ok(libraries) = self.get_steam_libraries() else {
+            return Err(())
+        };
+
+        for library in libraries {
+            let Ok(mut games) = library.get_all_games() else {
+                return Err(())
+            };
+
+            steam_games.append(&mut games);
+        }
+
+        Ok(steam_games)
+    }
 }
 
 // STEAM LIBRARY ------------------------------------------------------------------------
@@ -73,56 +100,46 @@ impl SteamLibrary {
     }
 
     /// Get all steam games associated with this library
-    pub fn get_games(&self) -> Result<Vec<SteamGame>, io::Error> {
+    pub fn get_all_games(&self) -> Result<Vec<Game>, io::Error> {
         let mut games = Vec::new();
 
-        for manifest_path in self.get_manifest_paths()? {
-            if let Some(game) = SteamGame::new(manifest_path, &self.path_steam_dir) {
-                games.push(game);
+        for path_app_manifest in self.get_manifest_paths()? {
+            if let Some(game) = self.get_game(path_app_manifest) {
+                games.push(game)
             }
         }
 
         Ok(games)
     }
-}
 
-// STEAM GAME ---------------------------------------------------------------------------
-pub struct SteamGame {
-    pub appid: String,
-    pub title: String,
-    pub launch_command: String,
-    pub path_icon: PathBuf,
-}
-impl SteamGame {
-    /// Returns a new SteamGame from the given path to a steam app manifest file
-    /// (appmanifest_.*.acf) and path to the steam directory
-    fn new(path_app_manifest: PathBuf, path_steam_dir: &Path) -> Option<SteamGame> {
+    /// Returns a new Game from the given path to a steam app manifest file (appmanifest_.*.acf)
+    fn get_game(&self, path_app_manifest: PathBuf) -> Option<Game> {
         let appid = path_app_manifest
             .file_name()?
             .to_str()?
             .replace("appmanifest_", "")
             .replace(".acf", "");
 
-        let title = SteamGame::get_title(path_app_manifest)?;
+        let title = self.parse_game_title(path_app_manifest)?;
         let launch_command = format!("steam steam://rungameid/{appid}");
-        let path_icon =
-            path_steam_dir.join(format!("appcache/librarycache/{appid}_library_600x900.jpg"));
+        let path_icon = self
+            .path_steam_dir
+            .join(format!("appcache/librarycache/{appid}_library_600x900.jpg"));
 
         // Skip games withoug box art
         if !path_icon.is_file() {
             return None;
         }
 
-        Some(SteamGame {
-            appid,
+        Some(Game {
             title,
             launch_command,
             path_icon,
         })
     }
 
-    /// Get game's title from the app manifest file
-    pub fn get_title(path_app_manifest: PathBuf) -> Option<String> {
+    /// Parse game's title from the app manifest file
+    fn parse_game_title(&self, path_app_manifest: PathBuf) -> Option<String> {
         let manifest_file = match File::open(path_app_manifest) {
             Ok(t) => t,
             Err(e) => {
