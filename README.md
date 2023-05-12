@@ -4,7 +4,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/License-GPL_v2-green.svg" alt="License: GPL v2" />
-  <img src="https://img.shields.io/github/v/tag/rolv-apneseth/rofi-games?label=version&color=magenta" alt="version" />
+  <img src="https://img.shields.io/github/v/tag/rolv-apneseth/rofi-games?label=version&color=blueviolet" alt="version" />
   <a href="https://aur.archlinux.org/packages/rofi-games"><img src="https://img.shields.io/aur/version/rofi-games" alt="AUR version" /></a>
 </p>
 
