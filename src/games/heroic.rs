@@ -34,12 +34,15 @@ impl Heroic {
 
         // Assumptions made for below code to parse games correctly:
         // - Every game has defined: app_name, title, is_installed
-        // - Title is defined last out of the required fields
+        // - The "title" field for actual game is defined last out of the required fields
         let mut app_names = Vec::new();
         let mut are_installed = Vec::new();
 
         for line in BufReader::new(library_json).lines().flatten() {
-            if line.contains("\"title\"") && are_installed[are_installed.len() - 1] {
+            if line.contains("\"title\"")
+                && are_installed.len() == app_names.len()
+                && are_installed[are_installed.len() - 1]
+            {
                 let Some(mut title) = parse_value_from_json_line(&line) else {
                     continue;
                 };
