@@ -6,8 +6,7 @@ CARGO ?= cargo
 CARGO_TARGET_DIR ?= target
 CARGO_RELEASE_DIR ?= $(CARGO_TARGET_DIR)/release
 
-datarootdir ?= usr/share
-licensesdir ?= $(datarootdir)/licenses/$(PKGNAME)
+licensesdir ?= /usr/share/licenses/$(PKGNAME)
 
 # Find the directory to install rofi plugins
 plugins_dir_pc = $(shell pkg-config --variable pluginsdir rofi)

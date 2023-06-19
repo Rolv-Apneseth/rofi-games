@@ -1,3 +1,4 @@
+use log::{error, warn};
 use std::{env, path::PathBuf, process::exit};
 
 use regex::Regex;
@@ -7,7 +8,7 @@ pub fn get_regex(pattern: &str) -> Regex {
     match Regex::new(pattern) {
         Ok(r) => r,
         Err(e) => {
-            eprintln!("Error with creating regex: \n{}", e);
+            error!("Error with creating regex: \n{}", e);
             exit(1);
         }
     }
@@ -18,7 +19,7 @@ pub fn get_str_from_path_buf(path_buf: &PathBuf) -> &str {
     match path_buf.as_os_str().to_str() {
         Some(s) => s,
         None => {
-            eprintln!("Error with reading path as str from: {:?}", path_buf);
+            error!("Error with reading path as str from: {:?}", path_buf);
             exit(1);
         }
     }
@@ -28,7 +29,10 @@ pub fn get_str_from_path_buf(path_buf: &PathBuf) -> &str {
 pub fn get_env(env: &str, backup: &str) -> String {
     match env::var(env) {
         Ok(e) => e,
-        _ => backup.to_owned(),
+        _ => {
+            warn!("Could not find env variable ${env}, defaulting to backup: ${backup}");
+            backup.to_owned()
+        }
     }
 }
 
