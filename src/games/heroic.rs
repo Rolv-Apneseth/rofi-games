@@ -1,3 +1,4 @@
+use log::{trace, warn};
 use std::{
     fs::File,
     io::{self, BufRead, BufReader},
@@ -13,11 +14,16 @@ pub struct Heroic {
 }
 
 fn parse_value_from_json_line(line: &str) -> Option<String> {
-    line.split_once("\": ")
+    let value = line
+        .split_once("\": ")
         // Remove double quotes
         .map(|split_line| split_line.1.replace('"', ""))
         // Remove trailing comma if it exists
-        .and_then(|value| value.strip_suffix(',').map(|s| s.to_owned()))
+        .and_then(|value| value.strip_suffix(',').map(|s| s.to_owned()));
+
+    trace!("Parsing json, retrieving value from line:\nLine: {line}\nParsed value: {value:?}");
+
+    value
 }
 
 impl Heroic {
@@ -30,7 +36,7 @@ impl Heroic {
     pub fn parse_library(&self, path_library_json: PathBuf) -> Result<Vec<Game>, io::Error> {
         let mut games = Vec::new();
 
-        let library_json = File::open(path_library_json)?;
+        let library_json = File::open(&path_library_json)?;
 
         // Assumptions made for below code to parse games correctly:
         // - Every game has defined: app_name, title, is_installed
@@ -38,7 +44,13 @@ impl Heroic {
         let mut app_names = Vec::new();
         let mut are_installed = Vec::new();
 
+        trace!("Parsing heroic launcher library json file at {path_library_json:?}");
         for line in BufReader::new(library_json).lines().flatten() {
+            trace!(
+                "app_names: {app_names:?}\nare_installed: {are_installed:?}\nCurrent line:
+                {line}"
+            );
+
             if line.contains("\"title\"")
                 && are_installed.len() == app_names.len()
                 && are_installed[are_installed.len() - 1]
@@ -82,6 +94,10 @@ heroic://launch/legendary/{app_name}"
             }
         }
 
+        if games.is_empty() {
+            warn!("No games found for heroic launcher library at: {path_library_json:?}")
+        }
+
         Ok(games)
     }
 
@@ -97,12 +113,20 @@ heroic://launch/legendary/{app_name}"
     ) -> Result<Vec<Game>, io::Error> {
         let mut games = Vec::new();
 
-        let installed_json = File::open(path_gog_installed_json)?;
+        let installed_json = File::open(&path_gog_installed_json)?;
 
         let mut app_names = Vec::new();
         let mut titles = Vec::new();
 
+        trace!(
+            "Parsing heroic library file for installed GOG games at {path_gog_installed_json:?}"
+        );
         for line in BufReader::new(installed_json).lines().flatten() {
+            trace!(
+                "app_names: {app_names:?}\ntitles: {titles:?}\nCurrent line:
+                {line}"
+            );
+
             if line.contains("\"appName\":") {
                 let Some(app_name) = parse_value_from_json_line(&line) else {
                     continue;
@@ -134,10 +158,20 @@ heroic://launch/legendary/{app_name}"
                 // GOG games use png, Legendary use jpg
                 .join(format!("icons/{app_name}.png"));
 
-            if path_icon.is_file() {
-                games.push(Game::new(title.to_owned(), launch_command, path_icon));
-            };
+            if !path_icon.is_file() {
+                warn!(
+                    "Skipping GOG game with title {title} as the icon file does not exist at
+{path_icon:?}"
+                );
+                return;
+            }
+
+            games.push(Game::new(title.to_owned(), launch_command, path_icon));
         });
+
+        if games.is_empty() {
+            warn!("No games found for Heroic launcher GOG library at {path_gog_installed_json:?}");
+        }
 
         Ok(games)
     }
@@ -151,14 +185,17 @@ impl Launcher for Heroic {
         let path_library_legendary = self
             .path_heroic_config
             .join("store_cache/legendary_library.json");
-        if let Ok(mut legendary_games) = self.parse_library(path_library_legendary) {
-            games.append(&mut legendary_games);
+
+        match self.parse_library(path_library_legendary) {
+            Ok(mut legendary_games) => games.append(&mut legendary_games),
+            Err(e) => warn!("Error with parsing heroic launcher legendary games library:\n{e}"),
         };
 
         // GOG games
         let path_gog_installed_json = self.path_heroic_config.join("gog_store/installed.json");
-        if let Ok(mut gog_games) = self.parse_gog_installed(path_gog_installed_json) {
-            games.append(&mut gog_games);
+        match self.parse_gog_installed(path_gog_installed_json) {
+            Ok(mut gog_games) => games.append(&mut gog_games),
+            Err(e) => warn!("Error with parsing heroic launcher gog games library:\n{e}"),
         };
 
         Ok(games)

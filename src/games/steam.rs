@@ -1,3 +1,4 @@
+use log::{debug, error, warn};
 use std::{
     collections::VecDeque,
     fs::{read_dir, File},
@@ -25,6 +26,9 @@ impl Steam {
             .path_steam_dir
             .join("steamapps")
             .join("libraryfolders.vdf");
+
+        debug!("Steam libraryfolders.vdf path: {libraries_vdg_path:?}");
+
         let libraries_vdg = File::open(libraries_vdg_path)?;
 
         let library_regex = get_regex("(\")/(.*)(\")");
@@ -39,6 +43,10 @@ impl Steam {
             }
         }
 
+        if libraries.is_empty() {
+            warn!("No steam libraries found")
+        };
+
         Ok(libraries)
     }
 }
@@ -48,16 +56,31 @@ impl Launcher for Steam {
     fn get_games(&self) -> Result<Vec<Game>, ()> {
         let mut steam_games = Vec::new();
 
-        let Ok(libraries) = self.get_steam_libraries() else {
-            return Err(())
+        let libraries = match self.get_steam_libraries() {
+            Ok(l) => l,
+            Err(e) => {
+                error!("Error with parsing steam libraries:\n{e}");
+                return Err(());
+            }
         };
 
         for library in libraries {
-            let Ok(mut games) = library.get_all_games() else {
-                return Err(())
+            let mut games = match library.get_all_games() {
+                Ok(g) => g,
+                Err(e) => {
+                    error!(
+                        "Error with parsing games from a steam library.\nLibrary:
+                        {library:?}\nError: {e:?}"
+                    );
+                    return Err(());
+                }
             };
 
             steam_games.append(&mut games);
+        }
+
+        if steam_games.is_empty() {
+            warn!("No games found for any steam library")
         }
 
         Ok(steam_games)
@@ -65,6 +88,7 @@ impl Launcher for Steam {
 }
 
 // STEAM LIBRARY ------------------------------------------------------------------------
+#[derive(Debug)]
 pub struct SteamLibrary {
     path_library: PathBuf,
     path_steam_dir: PathBuf,
@@ -95,6 +119,13 @@ impl SteamLibrary {
                 };
             }
         }
+
+        if manifest_paths.is_empty() {
+            warn!(
+                "No app manifest files found for steam library: {:?}",
+                self.path_library
+            );
+        };
 
         Ok(manifest_paths)
     }
@@ -128,6 +159,7 @@ impl SteamLibrary {
 
         // Skip games withoug box art
         if !path_icon.is_file() {
+            debug!("Skipped steam title as no box art exists for it: {title}");
             return None;
         }
 
@@ -140,10 +172,10 @@ impl SteamLibrary {
 
     /// Parse game's title from the app manifest file
     fn parse_game_title(&self, path_app_manifest: PathBuf) -> Option<String> {
-        let manifest_file = match File::open(path_app_manifest) {
+        let manifest_file = match File::open(&path_app_manifest) {
             Ok(t) => t,
             Err(e) => {
-                eprintln!("Error with reading app manifest file:\n{e}");
+                error!("Error with reading app manifest file at {path_app_manifest:?}:\n{e}");
                 return None;
             }
         };
@@ -163,6 +195,7 @@ impl SteamLibrary {
             }
         }
 
+        debug!("No title could be parsed from app manifest file at: {path_app_manifest:?}");
         None
     }
 }

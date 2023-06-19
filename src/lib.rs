@@ -1,5 +1,6 @@
 use games::{heroic::Heroic, steam::Steam, Game, Launcher};
 use helpers::get_env;
+use log::{debug, error, trace};
 use std::{
     path::PathBuf,
     process::{self, Command},
@@ -21,11 +22,18 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
     fn init(mut api: rofi_mode::Api<'rofi>) -> Result<Self, ()> {
         api.set_display_name("Games");
 
+        env_logger::init();
+
         let path_home = PathBuf::from(get_env("HOME", "~/"));
         let path_config_home = PathBuf::from(get_env("XDG_CONFIG_HOME", "~/.config"));
 
         let path_steam_dir = path_home.join(".local/share/Steam");
         let path_heroic_config = path_config_home.join("heroic");
+
+        trace!("$HOME: {:?}", path_home,);
+        trace!("$XDG_CONFIG_HOME: {:?}", path_config_home);
+        debug!("Steam dir path exists: {}", path_steam_dir.is_dir());
+        debug!("Heroic dir path exists: {}", path_heroic_config.is_dir());
 
         // Controller / manager for each supported launcher
         let steam = Steam::new(path_steam_dir);
@@ -35,11 +43,14 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
         let mut entries = Vec::new();
 
         if let Ok(mut steam_games) = steam.get_games() {
+            debug!("parsed Steam games: {steam_games:?}");
             entries.append(&mut steam_games);
         }
         if let Ok(mut heroic_games) = heroic.get_games() {
+            debug!("parsed Heroic games: {heroic_games:?}");
             entries.append(&mut heroic_games);
         }
+        trace!("Final entries parsed: {entries:?}");
 
         Ok(Mode { entries, api })
     }
@@ -72,7 +83,8 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
                 .stderr(process::Stdio::null())
                 .spawn()
             {
-                eprintln!("There was an error launching the game:\n{e}")
+                error!("There was an error launching a game:\n{e}");
+                debug!("Launched with command:\n\t{launch_command:?}")
             };
         };
 
