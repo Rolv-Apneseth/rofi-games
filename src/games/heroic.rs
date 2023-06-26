@@ -5,25 +5,12 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::helpers::clean_game_title;
+use crate::helpers::{clean_game_title, parse_value_from_json_line};
 
 use super::{Game, Launcher};
 
 pub struct Heroic {
     path_heroic_config: PathBuf,
-}
-
-fn parse_value_from_json_line(line: &str) -> Option<String> {
-    let value = line
-        .split_once("\": ")
-        // Remove double quotes
-        .map(|split_line| split_line.1.replace('"', ""))
-        // Remove trailing comma if it exists
-        .and_then(|value| value.strip_suffix(',').map(|s| s.to_owned()));
-
-    trace!("Parsing json, retrieving value from line:\nLine: {line}\nParsed value: {value:?}");
-
-    value
 }
 
 impl Heroic {

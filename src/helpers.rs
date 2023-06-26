@@ -1,4 +1,4 @@
-use log::{error, warn};
+use log::{error, trace, warn};
 use std::{env, path::PathBuf, process::exit};
 
 use regex::Regex;
@@ -39,4 +39,18 @@ pub fn get_env(env: &str, backup: &str) -> String {
 /// Cleans up parsed game title
 pub fn clean_game_title(title: &str) -> String {
     title.replace(['™', '®'], "")
+}
+
+/// Parses value from key:value line in a JSON file
+pub fn parse_value_from_json_line(line: &str) -> Option<String> {
+    let value = line
+        .split_once("\": ")
+        // Remove double quotes
+        .map(|split_line| split_line.1.replace('"', ""))
+        // Remove trailing comma if it exists
+        .and_then(|value| value.strip_suffix(',').map(|s| s.to_owned()));
+
+    trace!("Parsing json, retrieving value from line:\nLine: {line}\nParsed value: {value:?}");
+
+    value
 }
