@@ -1,8 +1,8 @@
-use log::{trace, warn};
+use log::{debug, trace, warn};
 use std::{
     fs::File,
     io::{self, BufRead, BufReader},
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 use crate::helpers::clean_game_title;
@@ -27,7 +27,10 @@ fn parse_value_from_json_line(line: &str) -> Option<String> {
 }
 
 impl Heroic {
-    pub fn new(path_heroic_config: PathBuf) -> Self {
+    pub fn new(path_config_home: &Path) -> Self {
+        let path_heroic_config = path_config_home.join("heroic");
+        debug!("Heroic dir path exists: {}", path_heroic_config.is_dir());
+
         Heroic { path_heroic_config }
     }
 
