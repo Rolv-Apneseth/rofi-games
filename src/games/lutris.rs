@@ -48,8 +48,8 @@ impl Lutris {
             path_lutris_box_art_dir.is_dir()
         );
         debug!(
-            "Lutris game-paths file exists: {}",
-            path_lutris_box_art_dir.is_file()
+            "Lutris game-paths.json file exists: {}",
+            path_lutris_game_paths_json.is_file()
         );
 
         Lutris {
@@ -59,7 +59,7 @@ impl Lutris {
         }
     }
 
-    /// Parse data from the game_paths.json file for Lutris
+    /// Parse data from the game-paths.json file for Lutris
     fn parse_game_paths_json(&self) -> Result<Vec<GamePathsJsonData>, ()> {
         let mut data = Vec::new();
 
@@ -84,10 +84,18 @@ impl Lutris {
                 .map(|t| {
                     [t.0, t.1]
                         .iter()
-                        .map(|s| s.trim().replace('"', ""))
+                        .map(|s| s.trim().replace(['"', ','], ""))
                         .collect::<Vec<String>>()
                 })
                 .ok_or_else(|| error!("Error parsing data from game-paths.json file"))?;
+
+            // Skip duplicate entries, which aren't valid json but still happen for some reason
+            if data
+                .iter()
+                .any(|d: &GamePathsJsonData| d.run_id == parsed_data[0])
+            {
+                continue;
+            }
 
             let parsed_executable_name = parsed_data[1]
                 .rsplit_once('/')
@@ -181,7 +189,7 @@ games directory for Lutris: {e:?}"
         }
     }
 
-    /// Get all relevant game data by combining data from the game_paths.json file and each games
+    /// Get all relevant game data by combining data from the game-paths.json file and each games
     /// .yml file.
     /// Matching of the data from these sources is done using the executable path of the game,
     /// which is the only thing defined in both sources
@@ -204,6 +212,8 @@ games directory for Lutris: {e:?}"
                 combined_data.push(combined_datum);
             }
         }
+
+        println!("{combined_data:?}");
 
         Ok(combined_data)
     }
