@@ -9,6 +9,7 @@ use std::{
 mod games;
 mod helpers;
 
+use crate::{games::lutris::Lutris, helpers::get_str_from_path_buf};
 
 struct Mode<'rofi> {
     entries: Vec<Game>,
@@ -34,6 +35,7 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
         // Controller / manager for each supported launcher
         let steam = Steam::new(&path_home);
         let heroic = Heroic::new(&path_config_home);
+        let lutris = Lutris::new(&path_config_home, &path_cache_home);
 
         // Populate entries
         let mut entries = Vec::new();
@@ -45,6 +47,10 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
         if let Ok(mut heroic_games) = heroic.get_games() {
             debug!("parsed Heroic games: {heroic_games:?}");
             entries.append(&mut heroic_games);
+        }
+        if let Ok(mut lutris_games) = lutris.get_games() {
+            debug!("parsed Lutris games: {lutris_games:?}");
+            entries.append(&mut lutris_games);
         }
         trace!("Final entries parsed: {entries:?}");
 

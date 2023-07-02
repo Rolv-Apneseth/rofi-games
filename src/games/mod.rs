@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 pub mod heroic;
+pub mod lutris;
 pub mod steam;
 
 /// Struct which contains all the details necessary for a rofi entry (name, icon, command to run
