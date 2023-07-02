@@ -9,7 +9,7 @@ use std::{
 mod games;
 mod helpers;
 
-use crate::helpers::get_str_from_path_buf;
+use crate::{games::lutris::Lutris, helpers::get_str_from_path_buf};
 
 struct Mode<'rofi> {
     entries: Vec<Game>,
@@ -26,18 +26,16 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
 
         let path_home = PathBuf::from(get_env("HOME", "~/"));
         let path_config_home = PathBuf::from(get_env("XDG_CONFIG_HOME", "~/.config"));
-
-        let path_steam_dir = path_home.join(".local/share/Steam");
-        let path_heroic_config = path_config_home.join("heroic");
+        let path_cache_home = PathBuf::from(get_env("XDG_CACHE_HOME", "~/.cache"));
 
         trace!("$HOME: {:?}", path_home,);
         trace!("$XDG_CONFIG_HOME: {:?}", path_config_home);
-        debug!("Steam dir path exists: {}", path_steam_dir.is_dir());
-        debug!("Heroic dir path exists: {}", path_heroic_config.is_dir());
+        trace!("$XDG_CACHE_HOME: {:?}", path_config_home);
 
         // Controller / manager for each supported launcher
-        let steam = Steam::new(path_steam_dir);
-        let heroic = Heroic::new(path_heroic_config);
+        let steam = Steam::new(&path_home);
+        let heroic = Heroic::new(&path_config_home);
+        let lutris = Lutris::new(&path_config_home, &path_cache_home);
 
         // Populate entries
         let mut entries = Vec::new();
@@ -49,6 +47,10 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
         if let Ok(mut heroic_games) = heroic.get_games() {
             debug!("parsed Heroic games: {heroic_games:?}");
             entries.append(&mut heroic_games);
+        }
+        if let Ok(mut lutris_games) = lutris.get_games() {
+            debug!("parsed Lutris games: {lutris_games:?}");
+            entries.append(&mut lutris_games);
         }
         trace!("Final entries parsed: {entries:?}");
 

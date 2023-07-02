@@ -3,7 +3,7 @@ use std::{
     collections::VecDeque,
     fs::{read_dir, File},
     io::{self, BufRead, BufReader},
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 use crate::helpers::get_regex;
@@ -15,7 +15,10 @@ pub struct Steam {
 }
 
 impl Steam {
-    pub fn new(path_steam_dir: PathBuf) -> Self {
+    pub fn new(path_home: &Path) -> Self {
+        let path_steam_dir = path_home.join(".local/share/Steam");
+        debug!("Steam dir path exists: {}", path_steam_dir.is_dir());
+
         Steam { path_steam_dir }
     }
     /// Get all available steam libraries by parsing the libraryfolders.vdf file

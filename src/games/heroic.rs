@@ -1,11 +1,11 @@
-use log::{trace, warn};
+use log::{debug, trace, warn};
 use std::{
     fs::File,
     io::{self, BufRead, BufReader},
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
-use crate::helpers::clean_game_title;
+use crate::helpers::{clean_game_title, parse_value_from_json_line};
 
 use super::{Game, Launcher};
 
@@ -13,21 +13,11 @@ pub struct Heroic {
     path_heroic_config: PathBuf,
 }
 
-fn parse_value_from_json_line(line: &str) -> Option<String> {
-    let value = line
-        .split_once("\": ")
-        // Remove double quotes
-        .map(|split_line| split_line.1.replace('"', ""))
-        // Remove trailing comma if it exists
-        .and_then(|value| value.strip_suffix(',').map(|s| s.to_owned()));
-
-    trace!("Parsing json, retrieving value from line:\nLine: {line}\nParsed value: {value:?}");
-
-    value
-}
-
 impl Heroic {
-    pub fn new(path_heroic_config: PathBuf) -> Self {
+    pub fn new(path_config_home: &Path) -> Self {
+        let path_heroic_config = path_config_home.join("heroic");
+        debug!("Heroic dir path exists: {}", path_heroic_config.is_dir());
+
         Heroic { path_heroic_config }
     }
 
