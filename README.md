@@ -66,19 +66,18 @@ The theme used in the demo image can be found in my dotfiles [here](https://gith
 
 ## Currently supported launchers / game sources
 
+Parsing of installed games has been extracted into a separate library: [lib_game_detector](https://github.com/Rolv-Apneseth/lib_game_detector)
+
+However, only games which have box art are valid for this launcher so not everything detected by that will be available for launch here. The following sources are currently supported:
+
 - Steam
-- Heroic Games Launcher
+  - *Note:* Not non-Steam games though, if anyone knows where the box art for these is stored let me know as I can't find them
+- Heroic Games Launcher (all sources, including Amazon, should work)
 - Lutris
   - *Note:* Must have box/cover art configured. Some may already have cover art (like the Epic Games launcher) but I would reccommend having a look over at [SteamGridDB](https://www.steamgriddb.com/grids) if you want to look for a better one. To set the cover art, simply right click the entry in the Lutris library, select "Configure", and click on the left-most image to select a new image file.
 
 ## Attribution
 
-### Idea
+The original idea belongs (as far as I know) to [@ntcarlson](https://github.com/ntcarlson), so big thanks to them. The original script I used to use for this was derived from [this Reddit post](https://www.reddit.com/r/unixporn/comments/p5b0qv/i3_misusing_rofi_as_a_game_launcher/) they shared.
 
-The original idea belongs (as far as I know) to [@ntcarlson](https://github.com/ntcarlson), so big thanks to them. The original script I used to use for this is from [this Reddit post](https://www.reddit.com/r/unixporn/comments/p5b0qv/i3_misusing_rofi_as_a_game_launcher/) they shared.
-
-However, I had modified it as I didn't like that sub menu for each game, and the script didn't work to update entries sometimes (as well as it didn't remove old entries for games I no longer had installed), so eventually I decided to have a go at making a Rust program out of it.
-
-### Plugin
-
-Converting to an actual `rofi` plugin is thanks to the author of [rofi-mode.rs library](https://github.com/SabrinaJewson/rofi-mode.rs), and thanks also to the author [rofi-vscode-mode](https://github.com/fuljo/rofi-vscode-mode) as that was very helpful as an example for both `rofi-mode` usage, the `Makefile` and `PKGBUILD`.
+Converting to an actual `rofi` plugin is thanks to the author of [rofi-mode.rs library](https://github.com/SabrinaJewson/rofi-mode.rs), and thanks also to the author [rofi-vscode-mode](https://github.com/fuljo/rofi-vscode-mode) as that was very helpful as an example for `rofi-mode` usage, the `Makefile` and `PKGBUILD`.

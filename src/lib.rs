@@ -1,15 +1,6 @@
-use games::{heroic::Heroic, steam::Steam, Game, Launcher};
-use helpers::get_env;
-use log::{debug, error, trace};
-use std::{
-    path::PathBuf,
-    process::{self, Command},
-};
-
-mod games;
-mod helpers;
-
-use crate::{games::lutris::Lutris, helpers::get_str_from_path_buf};
+use lib_game_detector::{data::Game, get_detector};
+use log::{debug, error};
+use std::process::{self, Command};
 
 struct Mode<'rofi> {
     entries: Vec<Game>,
@@ -24,35 +15,9 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
 
         env_logger::init();
 
-        let path_home = PathBuf::from(get_env("HOME", "~/"));
-        let path_config_home = PathBuf::from(get_env("XDG_CONFIG_HOME", "~/.config"));
-        let path_cache_home = PathBuf::from(get_env("XDG_CACHE_HOME", "~/.cache"));
-
-        trace!("$HOME: {:?}", path_home,);
-        trace!("$XDG_CONFIG_HOME: {:?}", path_config_home);
-        trace!("$XDG_CACHE_HOME: {:?}", path_config_home);
-
-        // Controller / manager for each supported launcher
-        let steam = Steam::new(&path_home);
-        let heroic = Heroic::new(&path_config_home);
-        let lutris = Lutris::new(&path_config_home, &path_cache_home);
-
-        // Populate entries
-        let mut entries = Vec::new();
-
-        if let Ok(mut steam_games) = steam.get_games() {
-            debug!("parsed Steam games: {steam_games:?}");
-            entries.append(&mut steam_games);
-        }
-        if let Ok(mut heroic_games) = heroic.get_games() {
-            debug!("parsed Heroic games: {heroic_games:?}");
-            entries.append(&mut heroic_games);
-        }
-        if let Ok(mut lutris_games) = lutris.get_games() {
-            debug!("parsed Lutris games: {lutris_games:?}");
-            entries.append(&mut lutris_games);
-        }
-        trace!("Final entries parsed: {entries:?}");
+        let entries = get_detector()
+            .get_all_detected_games()
+            .ok_or_else(|| error!("Error getting games from detector."))?;
 
         Ok(Mode { entries, api })
     }
@@ -110,7 +75,7 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
         let entry = &self.entries[line];
         rofi_mode::Api::query_icon(
             &mut self.api,
-            get_str_from_path_buf(&entry.path_icon),
+            entry.path_box_art.as_ref()?.to_str()?,
             height,
         )
         .wait(&mut self.api)
