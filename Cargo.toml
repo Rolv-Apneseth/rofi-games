@@ -2,7 +2,7 @@
 name = "rofi-games"
 authors = ["Rolv Apneseth"]
 description = "A rofi plugin which adds a mode to list available games for launch along with their box art"
-version = "1.3.0"
+version = "1.3.1"
 edition = "2021"
 license-file = "LICENSE"
 
@@ -10,7 +10,7 @@ license-file = "LICENSE"
 env_logger = "0.10.0"
 log = "0.4.19"
 rofi-mode = "0.3.0"
-lib_game_detector = "0.0.1"
+lib_game_detector = "0.0.2"
 
 [profile.release]
 strip = true
