@@ -1,9 +1,9 @@
-use lib_game_detector::{data::Game, get_detector};
+use lib_game_detector::{data::GamesSlice, get_detector};
 use log::{debug, error};
 use std::process::{self, Command};
 
 struct Mode<'rofi> {
-    entries: Vec<Game>,
+    entries: GamesSlice,
     api: rofi_mode::Api<'rofi>,
 }
 
@@ -16,7 +16,7 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
         env_logger::init();
 
         let entries = get_detector()
-            .get_all_detected_games()
+            .get_all_detected_games_with_box_art()
             .ok_or_else(|| error!("Error getting games from detector."))?;
 
         Ok(Mode { entries, api })
