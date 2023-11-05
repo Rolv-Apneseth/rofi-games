@@ -2,12 +2,13 @@ use lib_game_detector::{
     data::{Game, GamesSlice},
     get_detector,
 };
-use log::{debug, error};
 use rofi_mode::{Action, Event};
 use std::{
     process::{self, Command},
     sync::Arc,
 };
+use tracing::{debug, error};
+use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 struct Mode<'rofi> {
     entries: GamesSlice,
@@ -68,7 +69,10 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
     fn init(mut api: rofi_mode::Api<'rofi>) -> Result<Self, ()> {
         api.set_display_name("Games");
 
-        env_logger::init();
+        tracing_subscriber::registry()
+            .with(fmt::layer().without_time().with_line_number(true))
+            .with(EnvFilter::from_default_env())
+            .init();
 
         let entries = get_detector()
             .get_all_detected_games_with_box_art()
