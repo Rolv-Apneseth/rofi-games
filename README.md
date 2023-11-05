@@ -64,6 +64,14 @@ The theme used in the demo image can be found in my dotfiles [here](https://gith
 
 4. Modify the theme to suit your needs / preferences by editing the `.rasi` files
 
+## Keybinds
+
+Keybinds are set by `rofi`, the following are just the default values.
+
+- *Launch game:* `Enter` OR `Ctrl+j` OR `Ctrl+m`
+- *Open game's root directory*: `Shift+Enter`
+  - This uses `xdg-open path/to/dir` so if it's not opening with your desired program, try setting a different default with, e.g., `xdg-mime default thunar.desktop inode/directory`
+
 ## Currently supported launchers / game sources
 
 Parsing of installed games has been extracted into a separate library: [lib_game_detector](https://github.com/Rolv-Apneseth/lib_game_detector)
@@ -73,6 +81,7 @@ However, only games which have box art are valid for this launcher so not everyt
 - Steam
   - *Note:* Not non-Steam games though, if anyone knows where the box art for these is stored let me know as I can't find them
 - Heroic Games Launcher (all sources, including Amazon, should work)
+  - *Note*: The `GOG` source doesn't store the box art like the others, but the icons so they won't look good
 - Lutris
   - *Note:* Must have box/cover art configured. Some may already have cover art (like the Epic Games launcher) but I would reccommend having a look over at [SteamGridDB](https://www.steamgriddb.com/grids) if you want to look for a better one. To set the cover art, simply right click the entry in the Lutris library, select "Configure", and click on the left-most image to select a new image file.
 
