@@ -1,12 +1,67 @@
-use lib_game_detector::{data::GamesSlice, get_detector};
+use lib_game_detector::{
+    data::{Game, GamesSlice},
+    get_detector,
+};
 use log::{debug, error};
-use std::process::{self, Command};
+use rofi_mode::{Action, Event};
+use std::{
+    process::{self, Command},
+    sync::Arc,
+};
 
 struct Mode<'rofi> {
     entries: GamesSlice,
     api: rofi_mode::Api<'rofi>,
 }
 
+// UTILS
+impl<'rofi> Mode<'rofi> {
+    /// Attempts to launch selected game
+    fn handle_regular_event_ok(&self, selected_entry: &Game) {
+        let launch_command = selected_entry
+            .launch_command
+            .split_whitespace()
+            .collect::<Arc<[&str]>>();
+
+        if let Err(e) = Command::new(launch_command[0])
+            .args(launch_command.iter().skip(1))
+            .stdout(process::Stdio::null())
+            .stderr(process::Stdio::null())
+            .spawn()
+        {
+            error!("There was an error launching a game:\n{e}");
+            debug!("Launched with command:\n\t{launch_command:?}");
+        }
+    }
+
+    /// Attempts to open root directory of selected game
+    fn handle_alt_event_ok(&self, selected_entry: &Game) {
+        match selected_entry
+            .path_game_dir
+            .as_ref()
+            .and_then(|d| d.to_str())
+        {
+            Some(game_dir) => {
+                if let Err(e) = Command::new("xdg-open")
+                    .arg(game_dir)
+                    .stdout(process::Stdio::null())
+                    .stderr(process::Stdio::null())
+                    .spawn()
+                {
+                    error!("There was an error opening the directory to a game: {e:?}")
+                }
+            }
+            None => {
+                error!(
+                    "Game directory for '({:?})' could not be found.",
+                    selected_entry.title
+                )
+            }
+        }
+    }
+}
+
+// ROFI MODE
 impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
     const NAME: &'static str = "games\0";
 
@@ -36,31 +91,33 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
         event: rofi_mode::Event,
         _input: &mut rofi_mode::String,
     ) -> rofi_mode::Action {
-        if let rofi_mode::Event::Ok { alt: _, selected } = event {
-            let selected_entry = &self.entries[selected];
-            let launch_command = selected_entry
-                .launch_command
-                .split_whitespace()
-                .map(|s| s.to_owned())
-                .collect::<Vec<String>>();
+        match event {
+            // User accepted an option from the list
+            Event::Ok { alt, selected } => {
+                let selected_entry = &self.entries[selected];
 
-            if let Err(e) = Command::new(&launch_command[0])
-                .args(launch_command.iter().skip(1))
-                .stdout(process::Stdio::null())
-                .stderr(process::Stdio::null())
-                .spawn()
-            {
-                error!("There was an error launching a game:\n{e}");
-                debug!("Launched with command:\n\t{launch_command:?}")
-            };
-        };
+                match alt {
+                    // User selected entry regularly, attempt to launch game
+                    false => self.handle_regular_event_ok(selected_entry),
+                    // User selected entry with alternative binding, attempt to open game's root directory
+                    true => self.handle_alt_event_ok(selected_entry),
+                }
+            }
 
-        rofi_mode::Action::Exit
+            // User cancelled selection i.e. pressed `Esc`
+            Event::Cancel { selected: _ } => {}
+
+            // All other events currently unsupported
+            _ => {
+                error!("Unsupported input event: {event:?}")
+            }
+        }
+
+        Action::Exit
     }
 
     fn matches(&self, line: usize, matcher: rofi_mode::Matcher<'_>) -> bool {
-        let match_str = self.entries[line].title.as_str();
-        matcher.matches(match_str)
+        matcher.matches(&self.entries[line].title)
     }
 
     fn entry_style(&self, _line: usize) -> rofi_mode::Style {
