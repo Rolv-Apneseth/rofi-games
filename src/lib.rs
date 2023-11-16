@@ -3,10 +3,7 @@ use lib_game_detector::{
     get_detector,
 };
 use rofi_mode::{Action, Event};
-use std::{
-    process::{self, Command},
-    sync::Arc,
-};
+use std::process::{self, Command};
 use tracing::{debug, error};
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
@@ -19,19 +16,16 @@ struct Mode<'rofi> {
 impl<'rofi> Mode<'rofi> {
     /// Attempts to launch selected game
     fn handle_regular_event_ok(&self, selected_entry: &Game) {
-        let launch_command = selected_entry
-            .launch_command
-            .split_whitespace()
-            .collect::<Arc<[&str]>>();
-
-        if let Err(e) = Command::new(launch_command[0])
-            .args(launch_command.iter().skip(1))
-            .stdout(process::Stdio::null())
-            .stderr(process::Stdio::null())
-            .spawn()
-        {
+        if let Err(e) = selected_entry.launch_command.lock().map(|mut c| {
+            c.stdout(process::Stdio::null())
+                .stderr(process::Stdio::null())
+                .spawn()
+        }) {
             error!("There was an error launching a game:\n{e}");
-            debug!("Launched with command:\n\t{launch_command:?}");
+            debug!(
+                "Launched with command:\n\t{:?}",
+                selected_entry.launch_command
+            );
         }
     }
 

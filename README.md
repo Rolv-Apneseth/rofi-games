@@ -79,11 +79,13 @@ Parsing of installed games has been extracted into a separate library: [lib_game
 However, only games which have box art are valid for this launcher so not everything detected by that will be available for launch here. The following sources are currently supported:
 
 - Steam
-  - *Note:* Not non-Steam games though, if anyone knows where the box art for these is stored let me know as I can't find them
+  - Not non-Steam games though, if anyone knows where the box art for these is stored let me know as I can't find them
 - Heroic Games Launcher (all sources, including Amazon, should work)
-  - *Note*: The `GOG` source doesn't store the box art like the others, but the icons so they won't look good
+  - The `GOG` source doesn't store the box art like the others, but the icons so they won't look good
 - Lutris
-  - *Note:* Must have box/cover art configured. Some may already have cover art (like the Epic Games launcher) but I would reccommend having a look over at [SteamGridDB](https://www.steamgriddb.com/grids) if you want to look for a better one. To set the cover art, simply right click the entry in the Lutris library, select "Configure", and click on the left-most image to select a new image file.
+  - Must have box/cover art configured. Some may already have cover art (like the Epic Games launcher) but I would reccommend having a look over at [SteamGridDB](https://www.steamgriddb.com/grids) if you want to look for a better one. To set the cover art, simply right click the entry in the Lutris library, select "Configure", and click on the left-most image to select a new image file.
+- Bottles
+  - Only games which are in the Library and have a box/cover art are displayed
 
 ## Attribution
 
