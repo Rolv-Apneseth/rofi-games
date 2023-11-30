@@ -14,7 +14,7 @@ plugins_dir_pc = $(shell pkg-config --variable pluginsdir rofi)
 plugins_dir ?= $(if $(plugins_dir_pc),$(plugins_dir_pc),lib/rofi)
 plugin_path := "$(plugins_dir)/$(PLUGIN_NAME)"
 
-install:
+build:
 	# Set rust flags if running a version of `rofi` with changes newer than the base `1.7.5`
 	# See https://github.com/SabrinaJewson/rofi-mode.rs/issues/8#event-11112343153
 	# Examples of version outputs
@@ -26,6 +26,8 @@ install:
 	else \
 	    cargo build --release --lib; \
 	fi
+
+install: build
 
 	# Plugin
 	install -DT "$(CARGO_RELEASE_DIR)/$(LIB_NAME)" "$(DESTDIR)$(plugin_path)"
