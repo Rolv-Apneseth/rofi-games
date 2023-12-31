@@ -8,11 +8,12 @@ CARGO_RELEASE_DIR ?= $(CARGO_TARGET_DIR)/release
 ROFI_VERSION := $(shell rofi -version)
 
 licensesdir ?= /usr/share/licenses/$(PKGNAME)
+themesdir ?= /usr/share/rofi/themes
 
 # Find the directory to install rofi plugins
 plugins_dir_pc = $(shell pkg-config --variable pluginsdir rofi)
 plugins_dir ?= $(if $(plugins_dir_pc),$(plugins_dir_pc),lib/rofi)
-plugin_path := "$(plugins_dir)/$(PLUGIN_NAME)"
+plugin_path := "$(plugins_dir)$(PLUGIN_NAME)"
 
 build:
 	# Set rust flags if running a version of `rofi` with changes newer than the base `1.7.5`
@@ -32,6 +33,9 @@ install: build
 	# Plugin
 	install -DT "$(CARGO_RELEASE_DIR)/$(LIB_NAME)" "$(DESTDIR)$(plugin_path)"
 
+	# Themes
+	install -m=0644 -Dt $(DESTDIR)$(themesdir) themes/*
+
 	# License
 	install -Dt $(DESTDIR)$(licensesdir) LICENSE
 
@@ -40,3 +44,5 @@ install: build
 uninstall:
 	rm ${plugin_path}
 	rm -rf ${licensesdir}
+	rm ${themesdir}/games-default.rasi
+	rm ${themesdir}/games-smaller.rasi

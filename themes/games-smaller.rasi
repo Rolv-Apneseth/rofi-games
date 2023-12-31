@@ -1,0 +1,15 @@
+@import "games-default"
+
+window {
+    height:                         50%;
+    width:                          50%;
+}
+
+listview {
+    columns:                        5;
+    padding:                        30px;
+}
+
+element-icon {
+    size:       12%;
+}
