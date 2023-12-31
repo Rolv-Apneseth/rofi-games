@@ -8,7 +8,8 @@
   <a href="https://aur.archlinux.org/packages/rofi-games"><img src="https://img.shields.io/aur/version/rofi-games" alt="AUR version" /></a>
 </p>
 
-<img alt="rofi-games - demo image" src="https://user-images.githubusercontent.com/69486699/235387869-ecf5aa58-99bb-46d2-96e8-871773adc4d1.png" />
+![rofi-games - demo image](https://github.com/Rolv-Apneseth/rofi-games/assets/69486699/62b89187-c94d-464f-a942-2e66385db5e0)
+
 
 ## Installation
 
@@ -23,10 +24,10 @@
 2. Use make to install (requires `cargo`)
 
     ```bash
-    cd rofi-games && make install
+    cd rofi-games && sudo make install
     ```
 
-Uninstall with `make uninstall`
+Uninstall with `sudo make uninstall`
 
 ---
 
@@ -48,21 +49,19 @@ However, it is highly recommended to use a theme that can properly show off the 
 
 ## Theme
 
-For the optimal experience, and to achieve what is shown in the demo image, use a good `rofi` theme.
+For the optimal experience, and to achieve what is shown in the demo image, use a good `rofi` theme. You can use one of the default themes provided with `rofi-games` but I recommend customising it at least a little bit (at least add the search icon). More information about themes [here](./themes/).
 
-The theme used in the demo image can be found in my dotfiles [here](https://github.com/Rolv-Apneseth/.dotfiles/tree/main/rofi/.config/rofi). To use it, follow these steps:
+- To run with the default theme, the full command becomes:
 
-1. Clone that repo and take the `.rasi` files (or just copy the contents of the files). The relevant files are `colours.rasi`, `launcher.rasi` and `games.rasi`
-2. Put these with your `rofi` config, usually at `~/.config/rofi`
-3. Run `rofi` with `-theme games`, so the full command becomes:
+    ```bash
+    rofi -modi games -show games -theme games-default
+    ```
+
+- If you customised a theme and named the file `games.rasi`, it becomes:
 
     ```bash
     rofi -modi games -show games -theme games
     ```
-
-    - Yes I know, *games games games*, at least it's easy to remember
-
-4. Modify the theme to suit your needs / preferences by editing the `.rasi` files
 
 ## Keybinds
 

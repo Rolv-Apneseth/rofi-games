@@ -1,0 +1,120 @@
+// Colours
+* {
+    background-color:               transparent;
+    background:                     #1D2330;
+    background-transparent:         #1D2330A0;
+    text-color:                     #BBBBBB;
+    text-color-selected:            #FFFFFF;
+    primary:                        #BB77BB;
+    important:                      #BF616A;
+}
+
+configuration {
+    font:                           "Roboto 17";
+}
+
+element-text {
+    text-color: @text-color;
+}
+
+element-text selected {
+    text-color: @text-color-selected;
+}
+
+
+configuration {
+    show-icons:                     true;
+}
+
+window {
+    height:                         100%;
+    width:                          100%;
+    transparency:                   "real";
+    background-color:               @background-transparent;
+    border:                         0px 0px 0px 0px;
+    border-color:                   @primary;
+}
+
+mainbox {
+    children:                       [inputbar-box, listview];
+    padding:                        0px 0px;
+}
+
+listview {
+    layout:                         vertical;
+    padding:                        60px;
+    dynamic:                        true;
+    columns:                        7;
+    spacing:                        20px;
+}
+
+inputbar-box {
+    children:                       [dummy, inputbar, dummy];
+    orientation:                    horizontal;
+    expand:                         false;
+}
+
+inputbar {
+    children:                       [textbox-prompt, entry];
+    margin:                         50px 0px 0px 0px;
+    background-color:               @primary;
+    border:                         4px;
+    border-color:                   @primary;
+    border-radius:                  8px;
+}
+
+textbox-prompt {
+    text-color:                     @background;
+    horizontal-align:               0.5;
+    vertical-align:                 0.5;
+    expand:                         false;
+}
+
+entry {
+    expand:                         false;
+    padding:                        8px;
+    margin:                         -6px;
+    horizontal-align:               0;
+    width:                          300;
+    background-color:               @background;
+    border:                         6px;
+    border-color:                   @primary;
+    border-radius:                  8px;
+    cursor:                         text;
+}
+
+element {
+    children:                       [dummy, element-box, dummy];
+    padding:                        5px;
+    orientation:                    vertical;
+    border:                         0px 4px solid 0px 4px;
+    border-color:                   transparent;
+    border-radius:                  16;
+}
+
+element selected {
+    border-color:                   @primary;
+}
+
+element-box {
+    children:                       [element-icon, element-text];
+    orientation:                    vertical;
+    expand:                         false;
+    cursor:                         pointer;
+}
+
+element-icon {
+    padding:                        10px;
+    size:                           96;
+    cursor:                         inherit;
+}
+
+element-text {
+    horizontal-align:               0.5;
+    cursor:                         inherit;
+}
+
+element-icon {
+    size:       35%;
+    margin:     10px;
+}
