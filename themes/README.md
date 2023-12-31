@@ -8,9 +8,13 @@ To use the themes provided with `rofi-games`, just use the `rofi` theme flag: `-
 
     Use with  `-theme games-default`
 
+    ![default theme](https://github.com/Rolv-Apneseth/rofi-games/assets/69486699/1d15ef43-56fd-4be6-9bf3-0171c8f45b6a)
+
 2. **Smaller**
 
     Use with `-theme games-smaller`
+
+    ![smaller](https://github.com/Rolv-Apneseth/rofi-games/assets/69486699/25e74ae8-7376-45cd-a822-b91bebf6b70a)
 
 ## Customising (Recommended)
 
