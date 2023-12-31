@@ -34,7 +34,8 @@ install: build
 	install -DT "$(CARGO_RELEASE_DIR)/$(LIB_NAME)" "$(DESTDIR)$(plugin_path)"
 
 	# Themes
-	install -m=0644 -Dt $(DESTDIR)$(themesdir) themes/*
+	install -m=0644 -Dt $(DESTDIR)$(themesdir) themes/games-default.rasi
+	install -m=0644 -Dt $(DESTDIR)$(themesdir) themes/games-smaller.rasi
 
 	# License
 	install -Dt $(DESTDIR)$(licensesdir) LICENSE
