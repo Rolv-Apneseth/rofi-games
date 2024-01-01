@@ -10,7 +10,6 @@
 
 ![rofi-games - demo image](https://github.com/Rolv-Apneseth/rofi-games/assets/69486699/62b89187-c94d-464f-a942-2e66385db5e0)
 
-
 ## Installation
 
 ### Manual
@@ -21,13 +20,15 @@
     git clone https://github.com/Rolv-Apneseth/rofi-games.git
     ```
 
-2. Use make to install (requires `cargo`)
+2. Use `just` to install (requires `cargo` and `just`)
 
     ```bash
-    cd rofi-games && sudo make install
+    cd rofi-games && sudo just install
     ```
 
-Uninstall with `sudo make uninstall`
+Alternatively, if you don't want to install `just`, copy the commands for the build and install commands from the `justfile`.
+
+Uninstall with `sudo just uninstall`
 
 ---
 
@@ -86,8 +87,8 @@ However, only games which have box art are valid for this launcher so not everyt
 - Bottles
   - Only games which are in the Library and have a box/cover art are displayed
 
-## Attribution
+## Acknowledgement
 
 The original idea belongs (as far as I know) to [@ntcarlson](https://github.com/ntcarlson), so big thanks to them. The original script I used to use for this was derived from [this Reddit post](https://www.reddit.com/r/unixporn/comments/p5b0qv/i3_misusing_rofi_as_a_game_launcher/) they shared.
 
-Converting to an actual `rofi` plugin is thanks to the author of [rofi-mode.rs library](https://github.com/SabrinaJewson/rofi-mode.rs), and thanks also to the author [rofi-vscode-mode](https://github.com/fuljo/rofi-vscode-mode) as that was very helpful as an example for `rofi-mode` usage, the `Makefile` and `PKGBUILD`.
+Converting to an actual `rofi` plugin is thanks to the author of [rofi-mode.rs library](https://github.com/SabrinaJewson/rofi-mode.rs), and thanks also to the author [rofi-vscode-mode](https://github.com/fuljo/rofi-vscode-mode) as that was very helpful as an example for `rofi-mode` usage and the `PKGBUILD`.
