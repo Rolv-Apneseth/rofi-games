@@ -1,6 +1,9 @@
 alias b := build
 alias i := install
 alias u := uninstall
+alias c := clean
+alias t := test
+alias tb := test-bare
 
 # VARIABLES ----------------------------------------------------------------------------------------
 LIB_NAME := "librofi_games.so"
@@ -46,3 +49,12 @@ uninstall:
     rm {{THEMES_DIR}}/games-default.rasi
     rm {{THEMES_DIR}}/games-smaller.rasi
     rm -rf {{LICENSES_DIR}}
+
+clean:
+    cargo clean --verbose
+
+test $THEME:
+    rofi -modi games -show games -theme $THEME
+
+test-bare:
+    rofi -modi games -show games -show-icons
