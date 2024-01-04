@@ -4,6 +4,8 @@ alias u := uninstall
 alias c := clean
 alias t := test
 alias tb := test-bare
+alias d := develop
+alias dt := develop-themes
 
 # VARIABLES ----------------------------------------------------------------------------------------
 LIB_NAME := "librofi_games.so"
@@ -28,33 +30,51 @@ PKGNAME := env("PKGNAME", "rofi-games")
 PKGDIR := env("PKGDIR", "")
 
 # COMMANDS -----------------------------------------------------------------------------------------
+# List commands
+default:
+    @just --list
+
+# Build
 build:
     RUSTFLAGS="{{RUSTFLAGS}}" cargo build --release --lib
 
+# Build + install
 install: build
     # Plugin
     install -DT "target/release/{{LIB_NAME}}" "{{PKGDIR}}{{PLUGIN_PATH}}"
-    
+
     # Themes
     install -m=0644 -Dt "{{PKGDIR}}{{THEMES_DIR}}" themes/games-default.rasi
     install -m=0644 -Dt "{{PKGDIR}}{{THEMES_DIR}}" themes/games-smaller.rasi
-    
+
     # License
     install -Dt "{{PKGDIR}}{{LICENSES_DIR}}" LICENSE
-    
+
     cargo clean
 
+# Uninstall
 uninstall:
     rm {{PLUGIN_PATH}}
     rm {{THEMES_DIR}}/games-default.rasi
     rm {{THEMES_DIR}}/games-smaller.rasi
     rm -rf {{LICENSES_DIR}}
 
+# Clean
 clean:
     cargo clean --verbose
 
+# Run with specific theme
 test $THEME:
     rofi -modi games -show games -theme $THEME
 
+# Run with no theme
 test-bare:
     rofi -modi games -show games -show-icons
+
+# Rebuild and replace plugin file whenever a `.rs` file is updated
+develop:
+    fd --extension rs | entr -s 'RUSTFLAGS="{{RUSTFLAGS}}" cargo build --lib && sudo cp --force target/debug/{{LIB_NAME}} {{PLUGIN_PATH}}'
+
+# Replace theme files whenever a `.rasi` file is updated
+develop-themes:
+    fd --extension rasi | entr -s 'sudo cp --force themes/*.rasi {{THEMES_DIR}}'
