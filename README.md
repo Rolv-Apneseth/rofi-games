@@ -12,7 +12,15 @@
 
 ## Installation
 
-### Manual
+### AUR
+
+```bash
+paru -S rofi-games
+```
+
+---
+
+### just
 
 1. Clone repo:
 
@@ -26,27 +34,20 @@
     cd rofi-games && sudo just install
     ```
 
-Alternatively, if you don't want to install `just`, copy the commands for the build and install commands from the `justfile`.
-
 Uninstall with `sudo just uninstall`
 
 ---
 
-### AUR
+### Manual (not recommended)
 
 ```bash
-paru -S rofi-games
+git clone https://github.com/Rolv-Apneseth/rofi-games.git
+cd rofi-games
+cargo build --release --lib
+sudo cp target/release/librofi_games.so /usr/lib/rofi/games.so
 ```
 
-## Usage
-
-After installing, for (very) basic usage simply run the following command:
-
-```bash
-rofi -modi games -show games -show-icons
-```
-
-However, it is highly recommended to use a theme that can properly show off the box art images
+- If you are using the latest changes from the `rofi` repo (e.g. `rofi-lbonn-wayland-git`, `rofi-git`), then the build step needs to be preceded by `RUSTFLAGS="--cfg rofi_next"` for it to work
 
 ## Theme
 
@@ -66,11 +67,12 @@ For the optimal experience, and to achieve what is shown in the demo image, use 
 
 ## Keybinds
 
-Keybinds are set by `rofi`, the following are just the default values.
+| Keybind           | Default rofi keybind              | Action                     |
+|-------------------|-----------------------------------|----------------------------|
+| `kb-accept-entry` | <kbd>Enter</kbd>                  | Launch game                |
+| `kb-accept-alt`   | <kbd>Shift</kbd>+<kbd>Enter</kbd> | Open game's root directory |
 
-- *Launch game:* `Enter` OR `Ctrl+j` OR `Ctrl+m`
-- *Open game's root directory*: `Shift+Enter`
-  - This uses `xdg-open path/to/dir` so if it's not opening with your desired program, try setting a different default with, e.g., `xdg-mime default thunar.desktop inode/directory`
+- To change a `rofi` keybind, you can, for example, use `-kb-accept-entry Ctrl+c`
 
 ## Currently supported launchers / game sources
 
