@@ -24,9 +24,10 @@ PLUGIN_PATH := join(PLUGINS_DIR, PLUGIN_NAME)
 # See https://github.com/SabrinaJewson/rofi-mode.rs/issues/8#event-11112343153
 # Examples of version outputs
 #     rofi: Version: 1.7.5
+#     rofi(wayland): Version: 1.7.5+wayland2
 #     rofi-git: Version: 1.7.5-187-gb43a82f8 (makepkg)
 #     rofi-lbonn-wayland-git: Version: 1.7.5+wayland2-154-g36621af0 (makepkg)
-RUSTFLAGS := if `rofi -version` == "Version: 1.7.5" { "" } else { "--cfg rofi_next" }
+RUSTFLAGS := if `rofi -version` =~ '^Version: 1\.7\.5(?:\+wayland2)?$' { "" } else { "--cfg rofi_next" }
 
 # COMMANDS -----------------------------------------------------------------------------------------
 # List commands
