@@ -105,16 +105,12 @@ element-box {
 
 element-icon {
     padding:                        10px;
-    size:                           96;
     cursor:                         inherit;
+    size:                           35%;
+    margin:                         10px;
 }
 
 element-text {
     horizontal-align:               0.5;
     cursor:                         inherit;
-}
-
-element-icon {
-    size:       35%;
-    margin:     10px;
 }
