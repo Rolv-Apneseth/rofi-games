@@ -128,12 +128,11 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
 
     fn entry_icon(&mut self, line: usize, height: u32) -> Option<rofi_mode::cairo::Surface> {
         let entry = &self.entries[line];
-        rofi_mode::Api::query_icon(
-            &mut self.api,
-            entry.path_box_art.as_ref()?.to_str()?,
-            height,
-        )
-        .wait(&mut self.api)
+
+        self.api
+            .query_icon(entry.path_box_art.as_ref()?.to_str()?, height)
+            .wait(&mut self.api)
+            .ok()
     }
 
     fn completed(&self, line: usize) -> rofi_mode::String {
