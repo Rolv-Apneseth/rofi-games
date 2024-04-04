@@ -536,7 +536,7 @@ checksum = "c08c74e62047bb2de4ff487b251e4a92e24f48745648451635cec7d591162d9f"
 
 [[package]]
 name = "rofi-games"
-version = "1.6.7"
+version = "1.6.8"
 dependencies = [
  "lib_game_detector",
  "rofi-mode",
