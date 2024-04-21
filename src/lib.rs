@@ -1,3 +1,4 @@
+use config::read_config;
 use lib_game_detector::{
     data::{Game, GamesSlice},
     get_detector,
@@ -6,6 +7,11 @@ use rofi_mode::{Action, Event};
 use std::process::{self, Command};
 use tracing::{debug, error};
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
+
+use crate::config::add_custom_entries;
+
+mod config;
+mod utils;
 
 struct Mode<'rofi> {
     entries: GamesSlice,
@@ -68,9 +74,21 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
             .with(EnvFilter::from_default_env())
             .init();
 
-        let entries = get_detector()
-            .get_all_detected_games_with_box_art()
+        let mut entries = get_detector()
+            .get_all_detected_games()
             .ok_or_else(|| error!("Error getting games from detector."))?;
+
+        // TODO: Avoid all the cloning of `entries`
+        if let Some(config) = read_config() {
+            entries = add_custom_entries(&entries, &config);
+        };
+
+        // Filter out entries without box art
+        entries = entries
+            .iter()
+            .filter(|e| e.path_box_art.is_some())
+            .cloned()
+            .collect();
 
         Ok(Mode { entries, api })
     }
