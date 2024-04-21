@@ -1,6 +1,8 @@
 @import "games-default"
 
 window {
+    fullscreen:                     false;
+    border-radius:                  10px;
     height:                         50%;
     width:                          50%;
 }
