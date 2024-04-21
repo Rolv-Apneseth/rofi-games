@@ -27,6 +27,7 @@ configuration {
 }
 
 window {
+    fullscreen:                     true;
     height:                         100%;
     width:                          100%;
     transparency:                   "real";
