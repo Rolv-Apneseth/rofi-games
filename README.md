@@ -89,34 +89,52 @@ However, only games which have box art are valid for this launcher so not everyt
 - Bottles
   - Only games which are in the Library and have a box/cover art (or have box art defined in a custom entry - see configuration section below) are displayed
 
+- Instances from the following modded Minecraft launchers:
+    1. Prism Launcher
+    2. ATLauncher
+
+> [!NOTE]
+> Modded Minecraft instances are not shown by default (as they don't have box art), so look at the configuration section below to see how to match an instance title to define box art for it
+
 ## Configuration
 
 Custom entries, for unsupported games (or technically anything you want), can be made by creating a config file at `~/.config/rofi-games/config.toml` (`$XDG_CONFIG_HOME` is respected). Here is an example configuration:
 
-    ```toml
-    box_art_dir = "/home/rolv/.config/rofi-games/box-art"
+```toml
+# Directory to find box art in if an absolute path is not given
+box_art_dir = "/home/rolv/.config/rofi-games/box-art"
 
-    [[entries]]
-    title = "GDLauncher"
-    launch_command = "gdlauncher"
-    path_box_art = "gdlauncher.png"
-    path_game_dir = "/opt/GDLauncher"
+# Define a new custom entry
+[[entries]]
+title = "GDLauncher"
+launch_command = "gdlauncher"
+# Looks for the image in the defined `box_art_dir`
+path_box_art = "gdlauncher.png"
+path_game_dir = "/opt/GDLauncher"
 
-    [[entries]]
-    title = "Cyberpunk 2077"
-    path_box_art = "/home/rolv/images/cyberpunk.png"
-    ```
+# Change box art for a title
+[[entries]]
+title = "Cyberpunk 2077"
+path_box_art = "/home/rolv/images/cyberpunk.png"
+
+# Define box art for a title e.g. Minecraft instances
+# Modded Minecraft instances are always prefixed with "Minecraft: "
+[[entries]]
+title = "Minecraft: Fabulously Optimized"
+path_box_art = "fabulously_optimized.png"
+```
 
 - The `box_art_dir` field is optional, but will be used if the `path_box_art` field of a given entry is not an absolute path.
 
 - In the first entry, a custom entry is defined for `GDLauncher`. All fields must be defined.
 
-- In the second entry, a game already detected by `rofi-games` is matched by the `title` field. The
+- In the second entry, a game already detected by `lib_game_detector` is matched by the `title` field. The
   custom entry is used to override certain fields for that entry, e.g. changing the box art image.
   - This can also be used to set box art images for the sources listed above that require a box art
   image defined in the launcher itself e.g. Lutris
-  - **Note:** if you have multiple entries which match a given title, doing this will override the fields
-      on the first match, and remove all the other matches
+
+> [!WARNING]
+> If you have multiple entries which match a given title, doing this will override the fields on the first match, and remove all the other matches
 
 ## Credit
 
