@@ -1,5 +1,5 @@
 use dirs::config_dir;
-use lib_game_detector::data::{Game, GamesSlice};
+use lib_game_detector::data::{Game, Games};
 use serde::Deserialize;
 use std::{error::Error, fs::read_to_string};
 use tracing::{debug, error};
@@ -45,11 +45,11 @@ pub fn read_config() -> Option<Config> {
         .ok()
 }
 
-pub fn add_custom_entries(entries: &GamesSlice, config: &Config) -> GamesSlice {
-    // Convert parsed config entries into a `GamesSlice`
-    let custom_entries: GamesSlice = config
+pub fn add_custom_entries(entries: &Games, config: Config) -> Games {
+    // Convert parsed config entries into a `Games` collection
+    let custom_entries: Games = config
         .entries
-        .iter()
+        .into_iter()
         .filter_map(|entry| {
             let ConfigEntry {
                 title,
@@ -58,7 +58,7 @@ pub fn add_custom_entries(entries: &GamesSlice, config: &Config) -> GamesSlice {
                 path_game_dir: opt_path_game_dir,
             } = entry;
 
-            let matching_entry = entries.iter().find(|e| &e.title == title);
+            let matching_entry = entries.iter().find(|e| e.title == title).cloned();
             if matching_entry.is_none()
                 && (opt_launch_command.is_none()
                     || opt_path_game_dir.is_none()
@@ -68,17 +68,20 @@ pub fn add_custom_entries(entries: &GamesSlice, config: &Config) -> GamesSlice {
                 return None;
             };
 
-            let launch_command = get_launch_command(matching_entry, opt_launch_command, title)?;
-            let path_box_art = Some(get_path_box_art(matching_entry, opt_path_box_art, &config.box_art_dir, title)?);
-            let path_game_dir = Some(get_path_game_dir(matching_entry, opt_path_game_dir,
-                title)?);
+            let launch_command =
+            get_launch_command(&matching_entry,
+                &opt_launch_command, &title)?;
+            let path_box_art = Some(get_path_box_art(&matching_entry,
+                &opt_path_box_art, &config.box_art_dir, &title)?);
+            let path_game_dir = Some(get_path_game_dir(&matching_entry, &opt_path_game_dir,
+                &title)?);
 
             Some(Game {
                 title: title.clone(),
                 launch_command,
                 path_box_art,
                 path_game_dir,
-            })
+            }.into())
         })
         .collect();
 

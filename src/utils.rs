@@ -9,7 +9,7 @@ use tracing::{error, warn};
 
 #[inline]
 pub fn get_launch_command(
-    matching_entry: Option<&Game>,
+    matching_entry: &Option<Arc<Game>>,
     opt_launch_command: &Option<String>,
     title: &str,
 ) -> Option<Arc<Mutex<Command>>> {
@@ -30,7 +30,7 @@ pub fn get_launch_command(
 
 #[inline]
 pub fn get_path_box_art(
-    matching_entry: Option<&Game>,
+    matching_entry: &Option<Arc<Game>>,
     opt_path_box_art: &Option<String>,
     opt_path_box_art_dir: &Option<String>,
     title: &str,
@@ -66,7 +66,7 @@ pub fn get_path_box_art(
 
 #[inline]
 pub fn get_path_game_dir(
-    matching_entry: Option<&Game>,
+    matching_entry: &Option<Arc<Game>>,
     opt_path_game_dir: &Option<String>,
     title: &str,
 ) -> Option<PathBuf> {
