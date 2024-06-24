@@ -11,18 +11,6 @@
 
 configuration {
     font:                           "Roboto 17";
-}
-
-element-text {
-    text-color: @text-color;
-}
-
-element-text selected {
-    text-color: @text-color-selected;
-}
-
-
-configuration {
     show-icons:                     true;
 }
 
@@ -37,8 +25,15 @@ window {
 }
 
 mainbox {
-    children:                       [inputbar-box, listview];
+    children:                       [prompt, inputbar-box, listview];
     padding:                        0px 0px;
+}
+
+prompt {
+    width:                          100%;
+    margin:                         10px 0px 0px 30px;
+    text-color:                     @important;
+    font:                           "Roboto Bold 27";
 }
 
 listview {
@@ -57,7 +52,7 @@ inputbar-box {
 
 inputbar {
     children:                       [textbox-prompt, entry];
-    margin:                         50px 0px 0px 0px;
+    margin:                         0px;
     background-color:               @primary;
     border:                         4px;
     border-color:                   @primary;
@@ -107,11 +102,17 @@ element-box {
 element-icon {
     padding:                        10px;
     cursor:                         inherit;
-    size:                           35%;
+    size:                           33%;
     margin:                         10px;
 }
 
 element-text {
     horizontal-align:               0.5;
     cursor:                         inherit;
+    text-color: @text-color;
 }
+
+element-text selected {
+    text-color: @text-color-selected;
+}
+
