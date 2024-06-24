@@ -67,7 +67,9 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
     const NAME: &'static str = "games\0";
 
     fn init(mut api: rofi_mode::Api<'rofi>) -> Result<Self, ()> {
-        api.set_display_name("Games");
+        if api.display_name().is_none() {
+            api.set_display_name("games");
+        };
 
         tracing_subscriber::registry()
             .with(fmt::layer().without_time().with_line_number(true))
@@ -76,7 +78,7 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
 
         let mut entries = get_detector().get_all_detected_games();
 
-        // TODO: Avoid all the cloning of `entries`
+        // Add custom entries from config
         if let Some(config) = read_config() {
             entries = add_custom_entries(&entries, config);
         };
