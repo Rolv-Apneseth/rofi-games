@@ -4,9 +4,17 @@ All notable changes to this project will be documented in this file.
 ---
 ## [unreleased]
 
+### Bug Fixes
+
+- only apply default display name if none is given - ([028240b](https://github.com/rolv-apneseth/rofi-games/commit/028240bb05ce00abc70c53eb707c396f2dc6572e))
+
 ### Continuous Integration
 
-- include `git-cliff` action for creating and maintaining a changelog - ([15d195c](https://github.com/rolv-apneseth/rofi-games/commit/15d195c109bba21bb7a46dd437336cd6df5956ae))
+- include `git-cliff` action for creating and maintaining a changelog - ([e4b548d](https://github.com/rolv-apneseth/rofi-games/commit/e4b548d3014433098a2e1c699a09bb7799c9561b))
+
+### Style
+
+- update default theme to display the `prompt` widget, but hide the widget for the smaller theme - ([d9de281](https://github.com/rolv-apneseth/rofi-games/commit/d9de281add29b670712f431a990af1683b91bdf0))
 
 ---
 ## [1.9.1](https://github.com/rolv-apneseth/rofi-games/compare/v1.9.0..v1.9.1) - 2024-05-23
