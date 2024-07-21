@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 ---
 ## [unreleased]
 
+### Features
+
+- update `lib_game_detector` for Steam shortcuts (non-Steam games) support - ([41cd92f](https://github.com/rolv-apneseth/rofi-games/commit/41cd92f29bd5435f763082d65afcad302a9a7059))
+
+---
+## [1.9.2](https://github.com/rolv-apneseth/rofi-games/compare/v1.9.1..v1.9.2) - 2024-06-24
+
 ### Bug Fixes
 
 - only apply default display name if none is given - ([028240b](https://github.com/rolv-apneseth/rofi-games/commit/028240bb05ce00abc70c53eb707c396f2dc6572e))
