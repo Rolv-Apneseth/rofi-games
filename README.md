@@ -81,11 +81,10 @@ Parsing of installed games has been extracted into a separate library: [lib_game
 However, only games which have box art are valid for this launcher so not everything detected by that will be available for launch here. The following sources are currently supported:
 
 - Steam
-  - Steam shortcuts (non-Steam games) are also supported, with a couple requirements:
+  - Steam shortcuts (non-Steam games) are also supported, just ensure the shortcuts has a box art image, using either the Steam UI or checking out the configuration section below.
 
-    1. Make sure to restart Steam at least once for new shortcuts to be detected
-    2. Ensure the shortcuts has a box art image, using either the Steam UI or checking out the configuration section below.
-        - To use the Steam UI, navigate to the Steam library page (where the different games' box art is shown) and find the desired shortcut, right-click -> Manage -> Set custom artwork
+> [!TIP]
+> To add box art for a shortcut using the Steam UI, navigate to the Steam library page (where the different games' box art is shown) and find the desired shortcut, right-click -> Manage -> Set custom artwork
 
 - Heroic Games Launcher (all sources, including Amazon, should work)
   - The `GOG` source doesn't store the box art like the others, but the icons, so they won't look good
