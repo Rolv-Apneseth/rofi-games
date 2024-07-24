@@ -130,7 +130,7 @@ path_box_art = "fabulously_optimized.png"
 
 - The `box_art_dir` field is optional, but will be used if the `path_box_art` field of a given entry is not an absolute path.
 
-- In the first entry, a custom entry is defined for `GDLauncher`. All fields must be defined.
+- In the first entry, a custom entry is defined for `GDLauncher`. All fields must be defined, except for `path_game_dir`.
 
 - In the second entry, a game already detected by `lib_game_detector` is matched by the `title` field. The
   custom entry is used to override certain fields for that entry, e.g. changing the box art image.

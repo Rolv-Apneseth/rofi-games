@@ -59,29 +59,30 @@ pub fn add_custom_entries(entries: &Games, config: Config) -> Games {
             } = entry;
 
             let matching_entry = entries.iter().find(|e| e.title == title).cloned();
-            if matching_entry.is_none()
-                && (opt_launch_command.is_none()
-                    || opt_path_game_dir.is_none()
-                    || opt_path_box_art.is_none())
-            {
-                error!("No matching entry found for the title '{title}'. All fields for the custom entry must be provided.");
-                return None;
-            };
+            debug!("Matching entry for {title}: {matching_entry:?}");
 
-            let launch_command =
-            get_launch_command(&matching_entry,
-                &opt_launch_command, &title)?;
-            let path_box_art = Some(get_path_box_art(&matching_entry,
-                &opt_path_box_art, &config.box_art_dir, &title)?);
-            let path_game_dir = Some(get_path_game_dir(&matching_entry, &opt_path_game_dir,
-                &title)?);
+            // Required fields
+            let launch_command = get_launch_command(&matching_entry, &opt_launch_command, &title)?;
+            let path_box_art = get_path_box_art(
+                &matching_entry,
+                &opt_path_box_art,
+                &config.box_art_dir,
+                &title,
+            );
+            path_box_art.as_ref()?;
 
-            Some(Game {
-                title: title.clone(),
-                launch_command,
-                path_box_art,
-                path_game_dir,
-            }.into())
+            // Optional fields
+            let path_game_dir = get_path_game_dir(&matching_entry, &opt_path_game_dir, &title);
+
+            Some(
+                Game {
+                    title,
+                    launch_command,
+                    path_box_art,
+                    path_game_dir,
+                }
+                .into(),
+            )
         })
         .collect();
 

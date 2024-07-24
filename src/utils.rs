@@ -82,7 +82,7 @@ pub fn get_path_game_dir(
         }
         (Some(entry), None) => entry.path_game_dir.clone(),
         _ => {
-            error!(
+            warn!(
                 "No path to the game directory provided for the custom entry with title: '{title}'"
             );
             None
