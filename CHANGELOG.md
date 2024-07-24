@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 ---
 ## [unreleased]
 
+### Documentation
+
+- **(readme)** update Steam shortcuts section - no need to restart - ([c2b9121](https://github.com/rolv-apneseth/rofi-games/commit/c2b91215fb1326ed359a2f249bcc11caa8532e86))
+
+---
+## [1.10.0](https://github.com/rolv-apneseth/rofi-games/compare/v1.9.2..v1.10.0) - 2024-07-21
+
 ### Features
 
 - update `lib_game_detector` for Steam shortcuts (non-Steam games) support - ([41cd92f](https://github.com/rolv-apneseth/rofi-games/commit/41cd92f29bd5435f763082d65afcad302a9a7059))
