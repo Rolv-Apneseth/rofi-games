@@ -15,7 +15,7 @@ LIB_NAME := "librofi_games.so"
 PLUGIN_NAME := "games.so"
 THEMES_DIR := "/usr/share/rofi/themes"
 LICENSES_DIR := "/usr/share/licenses/" + PKGNAME
-PLUGINS_DIR := `pkg-config --variable pluginsdir rofi || echo "/lib/rofi"`
+PLUGINS_DIR := `pkg-config --variable pluginsdir rofi || if test -d "/usr/lib64"; then echo "/usr/lib64/rofi"; else echo "/usr/lib/rofi"; fi`
 PLUGIN_PATH := join(PLUGINS_DIR, PLUGIN_NAME)
 
 # Set rust flags if running a version of `rofi` with changes newer than the base `1.7.5`
@@ -32,7 +32,7 @@ RUSTFLAGS := if `rofi -version` =~ '^Version: 1\.7\.5(?:\+wayland2)?$' { "" } el
 
 # List commands
 default:
-    @just --list
+    just --list
 
 # Build
 build:
