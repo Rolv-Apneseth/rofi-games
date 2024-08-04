@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 
 - **(readme)** update Steam shortcuts section - no need to restart - ([c2b9121](https://github.com/rolv-apneseth/rofi-games/commit/c2b91215fb1326ed359a2f249bcc11caa8532e86))
 
+### Refactoring
+
+- for custom entries, make `path_game_dir` optional - ([a36f253](https://github.com/rolv-apneseth/rofi-games/commit/a36f253a65e604c2be8c54f558645a82a98f491a))
+
 ---
 ## [1.10.0](https://github.com/rolv-apneseth/rofi-games/compare/v1.9.2..v1.10.0) - 2024-07-21
 
