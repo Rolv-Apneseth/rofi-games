@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 
 ### Documentation
 
+- **(readme)** update manual install description with info about the `rofi` plugins directory - ([ba529a7](https://github.com/rolv-apneseth/rofi-games/commit/ba529a71671d90058c796d7cf3d12bc91cb2fd27))
+
+### Refactoring
+
+- change fallback plugins directory if the `pkg-config` command doesn't return anything - ([e8e03b4](https://github.com/rolv-apneseth/rofi-games/commit/e8e03b4213e6ef2cb14f78cebe81696d667adee9))
+
+---
+## [1.10.1](https://github.com/rolv-apneseth/rofi-games/compare/v1.10.0..v1.10.1) - 2024-08-04
+
+### Documentation
+
 - **(readme)** update Steam shortcuts section - no need to restart - ([c2b9121](https://github.com/rolv-apneseth/rofi-games/commit/c2b91215fb1326ed359a2f249bcc11caa8532e86))
 
 ### Refactoring
