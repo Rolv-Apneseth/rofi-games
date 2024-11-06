@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 ---
+## [unreleased]
+
+### Bug Fixes
+
+- update `lib_game_detector` to patch issues with Lutris path detection and an error while looking for non-Steam games - ([5abb989](https://github.com/rolv-apneseth/rofi-games/commit/5abb989d214003fc95318fa07d6e0229ae40394e))
+
+---
 ## [1.10.2](https://github.com/rolv-apneseth/rofi-games/compare/v1.10.1..v1.10.2) - 2024-08-10
 
 ### Documentation
