@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ### Bug Fixes
 
+- update `lib_game_detector` to fix an issue with Lutris game detection - ([55703c8](https://github.com/rolv-apneseth/rofi-games/commit/55703c8ec85f74f4f1a16f50425f880f764921ad))
+
+---
+## [1.10.4](https://github.com/rolv-apneseth/rofi-games/compare/v1.10.3..v1.10.4) - 2024-11-07
+
+### Bug Fixes
+
 - update `lib_game_detector` to fix issues with Lutris fallback paths - ([ef138d2](https://github.com/rolv-apneseth/rofi-games/commit/ef138d28b465aaef0d5dffa84a6bc16ab65b60b3))
 
 ---
