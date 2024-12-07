@@ -115,4 +115,143 @@ pub fn add_custom_entries(entries: &mut [Game], config: Config) {
     });
 }
 
+#[cfg(test)]
+pub mod test_config {
+    use std::{ops::Range, sync::LazyLock};
+    use test_case::test_case;
+
+    use super::*;
+
+    const CMD: &str = "cmd";
+
+    fn get_dummy_games() -> Vec<Game> {
+        (1..11)
+            .map(|i| Game {
+                title: i.to_string(),
+                path_box_art: Some(PathBuf::default()),
+                path_game_dir: Some(PathBuf::default()),
+                launch_command: Command::new(CMD),
+            })
+            .collect()
+    }
+
+    #[test_case(1..2; "single")]
+    #[test_case(3..7; "multiple")]
+    #[test_case(1..11; "all")]
+    fn test_add_custom_entries_launch_command(range: Range<u16>) {
+        let mut entries = get_dummy_games();
+
+        let cmd = "new_command";
+
+        add_custom_entries(
+            &mut entries,
+            Config {
+                box_art_dir: None,
+                entries: range
+                    .clone()
+                    .map(|i| ConfigEntry {
+                        title: i.to_string(),
+                        launch_command: Some(cmd.to_string()),
+                        path_box_art: None,
+                        path_game_dir: None,
+                    })
+                    .collect(),
+            },
+        );
+
+        // Launch command changed, but nothing else
+        range.for_each(|i| {
+            let entry = entries.iter().find(|e| e.title == i.to_string()).unwrap();
+            assert_eq!(entry.launch_command.get_program(), cmd);
+            assert!(entry.path_game_dir.is_some(),);
+            assert!(entry.path_box_art.is_some());
+        });
+    }
+
+    #[test_case(3..4; "single")]
+    #[test_case(4..8; "multiple")]
+    #[test_case(1..11; "all")]
+    fn test_add_custom_entries_game_dir(range: Range<u16>) {
+        let mut entries = get_dummy_games();
+        let config_entries = range
+            .clone()
+            .map(|i| ConfigEntry {
+                title: i.to_string(),
+                launch_command: None,
+                path_box_art: None,
+                path_game_dir: Some(PATH_PARENT_DIR.clone()),
+            })
+            .collect();
+
+        add_custom_entries(
+            &mut entries,
+            Config {
+                box_art_dir: None,
+                entries: config_entries,
+            },
+        );
+
+        // Path to the game dir changed, but nothing else
+        range.for_each(|i| {
+            let entry = entries.iter().find(|e| e.title == i.to_string()).unwrap();
+            assert_eq!(
+                entry.path_game_dir.clone().unwrap(),
+                PathBuf::from(PATH_PARENT_DIR.as_str())
+            );
+            assert!(entry.path_box_art.is_some());
+            assert_eq!(entry.launch_command.get_program(), CMD)
+        });
+    }
+
+    static PATH_PARENT_DIR: LazyLock<String> = LazyLock::new(|| {
+        PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap())
+            .join(PathBuf::from(file!()).parent().unwrap())
+            .to_string_lossy()
+            .to_string()
+    });
+
+    #[test_case(1..2, None; "single")]
+    #[test_case(1..2, Some(PATH_PARENT_DIR.clone()); "single with base dir")]
+    #[test_case(3..7, None; "multiple")]
+    #[test_case(3..7, Some(PATH_PARENT_DIR.clone()); "multiple with base dir")]
+    #[test_case(1..11, None; "all")]
+    #[test_case(1..11, Some(PATH_PARENT_DIR.clone()); "all with base dir")]
+    fn test_add_custom_entries_box_art(range: Range<u16>, box_art_dir: Option<String>) {
+        let mut entries = get_dummy_games();
+
+        let path: String;
+        let final_path_to_match: PathBuf;
+
+        if box_art_dir.is_some() {
+            path = file!().replace("src/", "");
+            final_path_to_match = PathBuf::from(box_art_dir.clone().unwrap()).join(path.clone());
+        } else {
+            path = file!().to_string();
+            final_path_to_match = PathBuf::from(path.clone());
+        };
+
+        add_custom_entries(
+            &mut entries,
+            Config {
+                box_art_dir,
+                entries: range
+                    .clone()
+                    .map(|i| ConfigEntry {
+                        title: i.to_string(),
+                        launch_command: None,
+                        path_box_art: Some(path.clone()),
+                        path_game_dir: None,
+                    })
+                    .collect(),
+            },
+        );
+
+        // Path to the box art changed, but nothing else
+        range.for_each(|i| {
+            let entry = entries.iter().find(|e| e.title == i.to_string()).unwrap();
+            assert_eq!(entry.path_box_art.as_ref().unwrap(), &final_path_to_match);
+            assert!(entry.path_game_dir.is_some());
+            assert_eq!(entry.launch_command.get_program(), CMD)
+        });
+    }
 }
