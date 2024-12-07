@@ -139,7 +139,7 @@ path_box_art = "fabulously_optimized.png"
   image defined in the launcher itself e.g. Lutris
 
 > [!WARNING]
-> If you have multiple entries which match a given title, doing this will override the fields on the first match, and remove all the other matches
+> If you have multiple entries which match a given title, doing this will only override the fields on the first match, and other matches will be ignored
 
 ## Credit
 
