@@ -1,8 +1,5 @@
 use config::read_config;
-use lib_game_detector::{
-    data::{Game, Games},
-    get_detector,
-};
+use lib_game_detector::{data::Game, get_detector};
 use rofi_mode::{Action, Event};
 use std::process::{self, Command};
 use tracing::{debug, error};
@@ -11,22 +8,33 @@ use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 use crate::config::add_custom_entries;
 
 mod config;
-mod utils;
 
 struct Mode<'rofi> {
-    entries: Games,
+    entries: Vec<Game>,
     api: rofi_mode::Api<'rofi>,
 }
 
 // UTILS
 impl<'rofi> Mode<'rofi> {
+    /// Get a mutable reference to an entry from [`Self::entries`]
+    ///
+    /// # Panics
+    /// Panics if the given selected index is out-of-bounds
+    fn get_selected_entry(&mut self, selected: usize) -> &mut Game {
+        self.entries
+            .get_mut(selected)
+            .expect("Selected index is out-of-bounds")
+    }
+
     /// Attempts to launch selected game
-    fn handle_regular_event_ok(&self, selected_entry: &Game) {
-        if let Err(e) = selected_entry.launch_command.lock().map(|mut c| {
-            c.stdout(process::Stdio::null())
-                .stderr(process::Stdio::null())
-                .spawn()
-        }) {
+    fn handle_regular_event_ok(&mut self, selected: usize) {
+        let selected_entry = self.get_selected_entry(selected);
+        if let Err(e) = selected_entry
+            .launch_command
+            .stdout(process::Stdio::null())
+            .stderr(process::Stdio::null())
+            .spawn()
+        {
             error!("There was an error launching a game:\n{e}");
             debug!(
                 "Launched with command:\n\t{:?}",
@@ -36,7 +44,8 @@ impl<'rofi> Mode<'rofi> {
     }
 
     /// Attempts to open root directory of selected game
-    fn handle_alt_event_ok(&self, selected_entry: &Game) {
+    fn handle_alt_event_ok(&mut self, selected: usize) {
+        let selected_entry = self.get_selected_entry(selected);
         match selected_entry
             .path_game_dir
             .as_ref()
@@ -80,15 +89,11 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
 
         // Add custom entries from config
         if let Some(config) = read_config() {
-            entries = add_custom_entries(&entries, config);
+            add_custom_entries(&mut entries, config);
         };
 
         // Filter out entries without box art
-        entries = entries
-            .iter()
-            .filter(|e| e.path_box_art.is_some())
-            .cloned()
-            .collect();
+        entries.retain(|e| e.path_box_art.is_some());
 
         Ok(Mode { entries, api })
     }
@@ -110,13 +115,11 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
         match event {
             // User accepted an option from the list
             Event::Ok { alt, selected } => {
-                let selected_entry = &self.entries[selected];
-
                 match alt {
                     // User selected entry regularly, attempt to launch game
-                    false => self.handle_regular_event_ok(selected_entry),
+                    false => self.handle_regular_event_ok(selected),
                     // User selected entry with alternative binding, attempt to open game's root directory
-                    true => self.handle_alt_event_ok(selected_entry),
+                    true => self.handle_alt_event_ok(selected),
                 }
             }
 

@@ -1,10 +1,8 @@
 use dirs::config_dir;
-use lib_game_detector::data::{Game, Games};
+use lib_game_detector::data::Game;
 use serde::Deserialize;
-use std::{error::Error, fs::read_to_string};
-use tracing::{debug, error};
-
-use crate::utils::{get_launch_command, get_path_box_art, get_path_game_dir};
+use std::{error::Error, fs::read_to_string, path::PathBuf, process::Command};
+use tracing::{debug, error, trace, warn};
 
 #[derive(Deserialize, Debug)]
 pub struct Config {
@@ -45,56 +43,76 @@ pub fn read_config() -> Option<Config> {
         .ok()
 }
 
-pub fn add_custom_entries(entries: &Games, config: Config) -> Games {
+/// Modify the given game entries with custom entries parsed from the config.
+///
+/// NOTE: entries are matched based on the title. Only the first game with the exact title
+/// specified for the custom entry will be modified.
+pub fn add_custom_entries(entries: &mut [Game], config: Config) {
     // Convert parsed config entries into a `Games` collection
-    let custom_entries: Games = config
-        .entries
-        .into_iter()
-        .filter_map(|entry| {
-            let ConfigEntry {
-                title,
-                launch_command: opt_launch_command,
-                path_box_art: opt_path_box_art,
-                path_game_dir: opt_path_game_dir,
-            } = entry;
+    config.entries.into_iter().for_each(|entry| {
+        let ConfigEntry {
+            title,
+            launch_command: opt_launch_command,
+            path_box_art: opt_path_box_art,
+            path_game_dir: opt_path_game_dir,
+        } = entry;
 
-            let matching_entry = entries.iter().find(|e| e.title == title).cloned();
-            debug!("Matching entry for {title}: {matching_entry:?}");
+        let Some(matching_entry) = entries.iter_mut().find(|e| e.title == title) else {
+            return;
+        };
+        trace!("Matching entry for {title}: {matching_entry:?}");
 
-            // Required fields
-            let launch_command = get_launch_command(&matching_entry, &opt_launch_command, &title)?;
-            let path_box_art = get_path_box_art(
-                &matching_entry,
-                &opt_path_box_art,
-                &config.box_art_dir,
-                &title,
-            );
-            path_box_art.as_ref()?;
+        // REQUIRED FIELDS
+        // Launch command
+        if let Some(c) = opt_launch_command {
+            if let Some(split_command) = shlex::split(&c) {
+                let mut command = Command::new(&split_command[0]);
+                command.args(&split_command[1..]);
+                matching_entry.launch_command = command;
+            } else {
+                error!("Failed to split the given custom command: {c}");
+            };
+        }
 
-            // Optional fields
-            let path_game_dir = get_path_game_dir(&matching_entry, &opt_path_game_dir, &title);
-
-            Some(
-                Game {
-                    title,
-                    launch_command,
-                    path_box_art,
-                    path_game_dir,
+        // Box art
+        if let Some(p) = opt_path_box_art {
+            let path = match config.box_art_dir.as_ref() {
+                Some(d) => {
+                    let path_dir = PathBuf::from(d);
+                    if path_dir.is_absolute() {
+                        path_dir.join(p)
+                    } else {
+                        warn!("Ignoring the given `box_art_dir` config option as it is not pointing to an absolute path");
+                        PathBuf::from(p)
+                    }
                 }
-                .into(),
-            )
-        })
-        .collect();
+                None => PathBuf::from(p),
+            };
 
-    // Combine base entries with custom ones
-    entries
-        .iter()
-        // Remove base entry if there is a custom entry to override it
-        // NOTE: This can also remove multiple base entries per custom entry, since base entries
-        // with the same title are allowed (from different sources). Not entirely sure how to avoid
-        // this, so for now, it's a _feature_
-        .filter(|g| custom_entries.iter().all(|c| c.title != g.title))
-        .cloned()
-        .chain(custom_entries.iter().cloned())
-        .collect()
+            if path.is_file() {
+                matching_entry.path_box_art = Some(path);
+            } else {
+                error!("The box art path provided for '{title}' could not be found at: {path:?}");
+            };
+        } else {
+            error!("No path to the box art provided for the custom entry with title: '{title}'");
+        };
+
+        // OPTIONAL FIELDS
+        // Game directory
+        if let Some(p) = opt_path_game_dir {
+            let path = PathBuf::from(p);
+            if path.is_dir() {
+                matching_entry.path_game_dir = Some(path);
+            } else {
+                error!("The game directory path provided for '{title}' could not be found: {path:?}");
+            };
+        } else {
+            debug!(
+                "No path to the game directory provided for the custom entry with title: '{title}'"
+            );
+        };
+    });
+}
+
 }
