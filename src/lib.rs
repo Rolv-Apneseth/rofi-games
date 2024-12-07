@@ -15,7 +15,7 @@ struct Mode<'rofi> {
 }
 
 // UTILS
-impl<'rofi> Mode<'rofi> {
+impl Mode<'_> {
     /// Get a mutable reference to an entry from [`Self::entries`]
     ///
     /// # Panics
