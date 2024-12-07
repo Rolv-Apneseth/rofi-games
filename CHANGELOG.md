@@ -6,6 +6,29 @@ All notable changes to this project will be documented in this file.
 
 ### Bug Fixes
 
+- linting - ([26bb0eb](https://github.com/rolv-apneseth/rofi-games/commit/26bb0ebf2bf011322da24d1f2966220acb9525e0))
+
+### Continuous Integration
+
+- run the newly included tests - ([175e507](https://github.com/rolv-apneseth/rofi-games/commit/175e507eb404c84284c143f684383685b16b68bf))
+
+### Features
+
+- **(just)** add format and lint commands - ([c2a54dc](https://github.com/rolv-apneseth/rofi-games/commit/c2a54dc69108b36579cedd3d07e1b5f600fea50c))
+
+### Refactoring
+
+- changes for v0.0.12 of `lib_game_detector` - ([634b0dd](https://github.com/rolv-apneseth/rofi-games/commit/634b0dde6049e0ffad1dbd7d3be3978cc62c5b85))
+
+### Tests
+
+- basic testing for custom entry adding function - ([2cd2126](https://github.com/rolv-apneseth/rofi-games/commit/2cd2126876d030a58338677a18ad51c80342eb2d))
+
+---
+## [1.10.5](https://github.com/rolv-apneseth/rofi-games/compare/v1.10.4..v1.10.5) - 2024-11-08
+
+### Bug Fixes
+
 - update `lib_game_detector` to fix an issue with Lutris game detection - ([55703c8](https://github.com/rolv-apneseth/rofi-games/commit/55703c8ec85f74f4f1a16f50425f880f764921ad))
 
 ---
