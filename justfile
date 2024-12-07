@@ -6,6 +6,8 @@ alias t := test
 alias tb := test-bare
 alias d := develop
 alias dt := develop-themes
+alias f := format
+alias l := lint
 
 # VARIABLES ----------------------------------------------------------------------------------------
 
@@ -78,3 +80,11 @@ develop:
 # Replace theme files whenever a `.rasi` file is updated
 develop-themes:
     fd --extension rasi | entr -s 'sudo cp --force themes/*.rasi {{ THEMES_DIR }}'
+
+# Format
+format:
+    cargo +nightly fmt
+
+# Lint
+lint:
+    cargo clippy --all -- -D warnings 
