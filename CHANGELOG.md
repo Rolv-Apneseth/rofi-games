@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ### Bug Fixes
 
+- **(readme)** update warning about custom entries and games with the same title to match code - ([9186858](https://github.com/rolv-apneseth/rofi-games/commit/91868589f21d362dcf6a8e9963792e3d78a3c180))
+
+---
+## [1.10.6](https://github.com/rolv-apneseth/rofi-games/compare/v1.10.5..v1.10.6) - 2024-12-07
+
+### Bug Fixes
+
 - linting - ([26bb0eb](https://github.com/rolv-apneseth/rofi-games/commit/26bb0ebf2bf011322da24d1f2966220acb9525e0))
 
 ### Continuous Integration
