@@ -47,7 +47,7 @@ pub fn read_config() -> Option<Config> {
 ///
 /// NOTE: entries are matched based on the title. Only the first game with the exact title
 /// specified for the custom entry will be modified.
-pub fn add_custom_entries(entries: &mut [Game], config: Config) {
+pub fn add_custom_entries(entries: &mut Vec<Game>, config: Config) {
     // Convert parsed config entries into a `Games` collection
     config.entries.into_iter().for_each(|entry| {
         let ConfigEntry {
@@ -57,10 +57,7 @@ pub fn add_custom_entries(entries: &mut [Game], config: Config) {
             path_game_dir: opt_path_game_dir,
         } = entry;
 
-        let Some(matching_entry) = entries.iter_mut().find(|e| e.title == title) else {
-            return;
-        };
-        trace!("Matching entry for {title}: {matching_entry:?}");
+        let (mut opt_command, mut path_box_art, mut path_game_dir) = (None, None, None);
 
         // REQUIRED FIELDS
         // Launch command
@@ -68,9 +65,10 @@ pub fn add_custom_entries(entries: &mut [Game], config: Config) {
             if let Some(split_command) = shlex::split(&c) {
                 let mut command = Command::new(&split_command[0]);
                 command.args(&split_command[1..]);
-                matching_entry.launch_command = command;
+                opt_command = Some(command);
             } else {
                 error!("Failed to split the given custom command: {c}");
+                return;
             };
         }
 
@@ -90,12 +88,11 @@ pub fn add_custom_entries(entries: &mut [Game], config: Config) {
             };
 
             if path.is_file() {
-                matching_entry.path_box_art = Some(path);
+                path_box_art = Some(path);
             } else {
                 error!("The box art path provided for '{title}' could not be found at: {path:?}");
+                return;
             };
-        } else {
-            error!("No path to the box art provided for the custom entry with title: '{title}'");
         };
 
         // OPTIONAL FIELDS
@@ -103,7 +100,7 @@ pub fn add_custom_entries(entries: &mut [Game], config: Config) {
         if let Some(p) = opt_path_game_dir {
             let path = PathBuf::from(p);
             if path.is_dir() {
-                matching_entry.path_game_dir = Some(path);
+                path_game_dir = Some(path);
             } else {
                 error!("The game directory path provided for '{title}' could not be found: {path:?}");
             };
@@ -111,6 +108,48 @@ pub fn add_custom_entries(entries: &mut [Game], config: Config) {
             debug!(
                 "No path to the game directory provided for the custom entry with title: '{title}'"
             );
+        };
+
+        match entries.iter_mut().find(|e| e.title == title) {
+            // MODIFY EXISTING ENTRY
+            Some(matching_entry) => {
+                trace!("Matching entry for {title}: {matching_entry:?}");
+
+                if let Some(launch_command) = opt_command {
+                    matching_entry.launch_command = launch_command;
+                };
+
+                match (&matching_entry.path_box_art, path_box_art) {
+                    (_, Some(p)) => matching_entry.path_box_art = Some(p),
+                    (None, _) => error!("No path to the box art specified for entry with title: '{title}'"),
+                    _ => {},
+                }
+
+                if let Some(p) = path_game_dir {
+                    matching_entry.path_game_dir = Some(p);
+                }
+            },
+            // ADD FULLY CUSTOM ENTRY
+            None => {
+                trace!("Creating fully custom entry for {title}");
+
+                let Some(launch_command) = opt_command else {
+                    error!("No launch command specified for entry with title: '{title}'");
+                    return;
+                };
+
+                if path_box_art.is_none() {
+                    error!("No box art specified for entry with title: '{title}'");
+                    return;
+                };
+
+                entries.push(Game {
+                    title,
+                    launch_command,
+                    path_box_art,
+                    path_game_dir
+                })
+            }
         };
     });
 }
@@ -253,5 +292,68 @@ pub mod test_config {
             assert!(entry.path_game_dir.is_some());
             assert_eq!(entry.launch_command.get_program(), CMD)
         });
+    }
+
+    #[test]
+    fn test_add_fully_custom_entries() {
+        let mut entries = get_dummy_games();
+        let old_len = entries.len();
+        let new_titles = ["a", "b"];
+
+        add_custom_entries(
+            &mut entries,
+            Config {
+                box_art_dir: None,
+                entries: new_titles
+                    .iter()
+                    .map(|title| ConfigEntry {
+                        title: title.to_string(),
+                        launch_command: Some(CMD.to_string()),
+                        path_box_art: Some(file!().to_string()),
+                        path_game_dir: None,
+                    })
+                    .collect(),
+            },
+        );
+
+        assert_eq!(entries.len(), old_len + 2);
+        assert_eq!(entries[10].title, new_titles[0]);
+        assert_eq!(entries[11].title, new_titles[1]);
+    }
+
+    #[test]
+    fn test_skips_faulty_fully_custom_entries() {
+        let mut entries = get_dummy_games();
+        let old_len = entries.len();
+        let new_titles = ["a", "b", "c"];
+
+        add_custom_entries(
+            &mut entries,
+            Config {
+                box_art_dir: None,
+                entries: vec![
+                    ConfigEntry {
+                        title: new_titles[0].to_string(),
+                        launch_command: None,
+                        path_box_art: Some(file!().to_string()),
+                        path_game_dir: None,
+                    },
+                    ConfigEntry {
+                        title: new_titles[1].to_string(),
+                        launch_command: Some(CMD.to_string()),
+                        path_box_art: None,
+                        path_game_dir: None,
+                    },
+                    ConfigEntry {
+                        title: new_titles[2].to_string(),
+                        launch_command: None,
+                        path_box_art: None,
+                        path_game_dir: Some(file!().to_string()),
+                    },
+                ],
+            },
+        );
+
+        assert_eq!(entries.len(), old_len);
     }
 }
