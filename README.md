@@ -139,7 +139,7 @@ path_box_art = "fabulously_optimized.png"
   image defined in the launcher itself e.g. Lutris
 
 > [!WARNING]
-> If you have multiple entries which match a given title, doing this will only override the fields on the first match, and other matches will be ignored
+> If you have multiple games which match a given title (e.g. from multiple launchers), creating a custom entry will only override the fields on the first match, and other matches will be ignored. If you have multiple entries in your configuration file with the same title, they will override each other.
 
 ## Credit
 
