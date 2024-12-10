@@ -141,6 +141,9 @@ path_box_art = "fabulously_optimized.png"
 > [!WARNING]
 > If you have multiple games which match a given title (e.g. from multiple launchers), creating a custom entry will only override the fields on the first match, and other matches will be ignored. If you have multiple entries in your configuration file with the same title, they will override each other.
 
+> [!TIP]
+> To run a script with spaces in the launch command, you will need to use `\\` before any space characters, e.g. `launch_command = "/home/user/GOG\\ Games/Stardew\\ Valley/start.sh"`. Other options can be passed in directly without escaping spaces.
+
 ## Credit
 
 The original idea belongs (as far as I know) to [@ntcarlson](https://github.com/ntcarlson), so big thanks to them. The original script I used to use for this was derived from [this Reddit post](https://www.reddit.com/r/unixporn/comments/p5b0qv/i3_misusing_rofi_as_a_game_launcher/) they shared.
