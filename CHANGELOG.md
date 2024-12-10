@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 ---
 ## [unreleased]
 
+### Documentation
+
+- **(readme)** add tip about escaping spaces in custom launch commands - ([b80cc1f](https://github.com/rolv-apneseth/rofi-games/commit/b80cc1ffe521f371d9500e8407244ce776dc879b))
+
+---
+## [1.10.7](https://github.com/rolv-apneseth/rofi-games/compare/v1.10.6..v1.10.7) - 2024-12-09
+
 ### Bug Fixes
 
 - **(readme)** update warning about custom entries and games with the same title to match code - ([9186858](https://github.com/rolv-apneseth/rofi-games/commit/91868589f21d362dcf6a8e9963792e3d78a3c180))
