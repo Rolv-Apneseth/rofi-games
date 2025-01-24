@@ -4,9 +4,17 @@ All notable changes to this project will be documented in this file.
 ---
 ## [unreleased]
 
+### Bug Fixes
+
+- update `lib_game_detector` version to fix detection of Steam games with the new `librarycache` directory structure - ([95f34f9](https://github.com/rolv-apneseth/rofi-games/commit/95f34f94f02bbc83c582ba09eb9d07992e1555c4))
+
 ### Documentation
 
 - **(readme)** add tip about escaping spaces in custom launch commands - ([b80cc1f](https://github.com/rolv-apneseth/rofi-games/commit/b80cc1ffe521f371d9500e8407244ce776dc879b))
+
+### Miscellaneous Tasks
+
+- update deps - ([c876636](https://github.com/rolv-apneseth/rofi-games/commit/c876636db7a37744583fcde56194f2de428b1bec))
 
 ---
 ## [1.10.7](https://github.com/rolv-apneseth/rofi-games/compare/v1.10.6..v1.10.7) - 2024-12-09
