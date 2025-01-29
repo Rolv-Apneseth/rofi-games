@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ### Bug Fixes
 
+- update `lib_game_detector` version to fix additional cases for new Steam `librarycache` structure - ([5ea4a9e](https://github.com/rolv-apneseth/rofi-games/commit/5ea4a9e20837179a2581e9a738c7b8757a0495c7))
+
+---
+## [1.10.8](https://github.com/rolv-apneseth/rofi-games/compare/v1.10.7..v1.10.8) - 2025-01-24
+
+### Bug Fixes
+
 - update `lib_game_detector` version to fix detection of Steam games with the new `librarycache` directory structure - ([95f34f9](https://github.com/rolv-apneseth/rofi-games/commit/95f34f94f02bbc83c582ba09eb9d07992e1555c4))
 
 ### Documentation
