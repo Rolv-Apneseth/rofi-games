@@ -1,4 +1,5 @@
 use config::read_config;
+use is_terminal::IsTerminal;
 use lib_game_detector::{data::Game, get_detector};
 use rofi_mode::{Action, Event};
 use std::process::{self, Command};
@@ -81,7 +82,12 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
         };
 
         tracing_subscriber::registry()
-            .with(fmt::layer().without_time().with_line_number(true))
+            .with(
+                fmt::layer()
+                    .without_time()
+                    .with_line_number(true)
+                    .with_ansi(std::io::stdout().is_terminal()),
+            )
             .with(EnvFilter::from_default_env())
             .init();
 
