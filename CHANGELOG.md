@@ -6,6 +6,21 @@ All notable changes to this project will be documented in this file.
 
 ### Bug Fixes
 
+- disable colours when piping logs to an output file - ([ef389db](https://github.com/rolv-apneseth/rofi-games/commit/ef389dbfec2c8bd70ae49e908b4640eb54dfcec9))
+
+### Features
+
+- update `lib_game_detector` for Heroic Games Launcher sideloaded app support - ([fe03530](https://github.com/rolv-apneseth/rofi-games/commit/fe0353077da78359cb1d82b9bb9518c74baafe3a))
+
+### Miscellaneous Tasks
+
+- update deps - ([0878f82](https://github.com/rolv-apneseth/rofi-games/commit/0878f820493b34ea547ddc8f9db43112b87db565))
+
+---
+## [1.10.9](https://github.com/rolv-apneseth/rofi-games/compare/v1.10.8..v1.10.9) - 2025-01-29
+
+### Bug Fixes
+
 - update `lib_game_detector` version to fix additional cases for new Steam `librarycache` structure - ([5ea4a9e](https://github.com/rolv-apneseth/rofi-games/commit/5ea4a9e20837179a2581e9a738c7b8757a0495c7))
 
 ---
