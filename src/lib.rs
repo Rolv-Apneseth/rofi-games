@@ -6,8 +6,6 @@ use std::process::{self, Command};
 use tracing::{debug, error};
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
-use crate::config::add_custom_entries;
-
 mod config;
 
 struct Mode<'rofi> {
@@ -95,7 +93,7 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
 
         // Add custom entries from config
         if let Some(config) = read_config() {
-            add_custom_entries(&mut entries, config);
+            config.apply(&mut entries);
         };
 
         Ok(Mode { entries, api })
