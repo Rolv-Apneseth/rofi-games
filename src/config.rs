@@ -6,12 +6,13 @@ use tracing::{debug, error, trace, warn};
 
 #[derive(Deserialize, Debug)]
 pub struct Config {
+    hide_entries_without_box_art: Option<bool>,
     box_art_dir: Option<String>,
     entries: Vec<ConfigEntry>,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct ConfigEntry {
+struct ConfigEntry {
     title: String,
     launch_command: Option<String>,
     path_box_art: Option<String>,
@@ -43,13 +44,23 @@ pub fn read_config() -> Option<Config> {
         .ok()
 }
 
-/// Modify the given game entries with custom entries parsed from the config.
-///
-/// NOTE: entries are matched based on the title. Only the first game with the exact title
-/// specified for the custom entry will be modified.
-pub fn add_custom_entries(entries: &mut Vec<Game>, config: Config) {
-    // Convert parsed config entries into a `Games` collection
-    config.entries.into_iter().for_each(|entry| {
+impl Config {
+    /// Apply config options to the given entries.
+    pub fn apply(&self, entries: &mut Vec<Game>) {
+        self.add_custom_entries(entries);
+
+        if self.hide_entries_without_box_art.unwrap_or(false) {
+            entries.retain(|g| g.path_box_art.is_some());
+        }
+    }
+
+    /// Modify the given game entries with custom entries parsed from the config.
+    ///
+    /// NOTE: entries are matched based on the title. Only the first game with the exact title
+    /// specified for the custom entry will be modified.
+    fn add_custom_entries(&self, entries: &mut Vec<Game>) {
+        // Convert parsed config entries into a `Games` collection
+        self.entries.iter().for_each(|entry| {
         let ConfigEntry {
             title,
             launch_command: opt_launch_command,
@@ -62,7 +73,7 @@ pub fn add_custom_entries(entries: &mut Vec<Game>, config: Config) {
         // REQUIRED FIELDS
         // Launch command
         if let Some(c) = opt_launch_command {
-            if let Some(split_command) = shlex::split(&c) {
+            if let Some(split_command) = shlex::split(c) {
                 let mut command = Command::new(&split_command[0]);
                 command.args(&split_command[1..]);
                 opt_command = Some(command);
@@ -74,7 +85,7 @@ pub fn add_custom_entries(entries: &mut Vec<Game>, config: Config) {
 
         // Box art
         if let Some(p) = opt_path_box_art {
-            let path = match config.box_art_dir.as_ref() {
+            let path = match self.box_art_dir.as_ref() {
                 Some(d) => {
                     let path_dir = PathBuf::from(d);
                     if path_dir.is_absolute() {
@@ -110,7 +121,7 @@ pub fn add_custom_entries(entries: &mut Vec<Game>, config: Config) {
             );
         };
 
-        match entries.iter_mut().find(|e| e.title == title) {
+        match entries.iter_mut().find(|e| e.title == *title) {
             // MODIFY EXISTING ENTRY
             Some(matching_entry) => {
                 trace!("Matching entry for {title}: {matching_entry:?}");
@@ -144,7 +155,7 @@ pub fn add_custom_entries(entries: &mut Vec<Game>, config: Config) {
                 };
 
                 entries.push(Game {
-                    title,
+                    title: title.clone(),
                     launch_command,
                     path_box_art,
                     path_game_dir
@@ -152,6 +163,7 @@ pub fn add_custom_entries(entries: &mut Vec<Game>, config: Config) {
             }
         };
     });
+    }
 }
 
 #[cfg(test)]
@@ -182,21 +194,20 @@ pub mod test_config {
 
         let cmd = "new_command";
 
-        add_custom_entries(
-            &mut entries,
-            Config {
-                box_art_dir: None,
-                entries: range
-                    .clone()
-                    .map(|i| ConfigEntry {
-                        title: i.to_string(),
-                        launch_command: Some(cmd.to_string()),
-                        path_box_art: None,
-                        path_game_dir: None,
-                    })
-                    .collect(),
-            },
-        );
+        Config {
+            box_art_dir: None,
+            entries: range
+                .clone()
+                .map(|i| ConfigEntry {
+                    title: i.to_string(),
+                    launch_command: Some(cmd.to_string()),
+                    path_box_art: None,
+                    path_game_dir: None,
+                })
+                .collect(),
+            hide_entries_without_box_art: None,
+        }
+        .apply(&mut entries);
 
         // Launch command changed, but nothing else
         range.for_each(|i| {
@@ -222,13 +233,12 @@ pub mod test_config {
             })
             .collect();
 
-        add_custom_entries(
-            &mut entries,
-            Config {
-                box_art_dir: None,
-                entries: config_entries,
-            },
-        );
+        Config {
+            box_art_dir: None,
+            entries: config_entries,
+            hide_entries_without_box_art: None,
+        }
+        .apply(&mut entries);
 
         // Path to the game dir changed, but nothing else
         range.for_each(|i| {
@@ -269,21 +279,20 @@ pub mod test_config {
             final_path_to_match = PathBuf::from(path.clone());
         };
 
-        add_custom_entries(
-            &mut entries,
-            Config {
-                box_art_dir,
-                entries: range
-                    .clone()
-                    .map(|i| ConfigEntry {
-                        title: i.to_string(),
-                        launch_command: None,
-                        path_box_art: Some(path.clone()),
-                        path_game_dir: None,
-                    })
-                    .collect(),
-            },
-        );
+        Config {
+            box_art_dir,
+            entries: range
+                .clone()
+                .map(|i| ConfigEntry {
+                    title: i.to_string(),
+                    launch_command: None,
+                    path_box_art: Some(path.clone()),
+                    path_game_dir: None,
+                })
+                .collect(),
+            hide_entries_without_box_art: None,
+        }
+        .apply(&mut entries);
 
         // Path to the box art changed, but nothing else
         range.for_each(|i| {
@@ -300,21 +309,20 @@ pub mod test_config {
         let old_len = entries.len();
         let new_titles = ["a", "b"];
 
-        add_custom_entries(
-            &mut entries,
-            Config {
-                box_art_dir: None,
-                entries: new_titles
-                    .iter()
-                    .map(|title| ConfigEntry {
-                        title: title.to_string(),
-                        launch_command: Some(CMD.to_string()),
-                        path_box_art: Some(file!().to_string()),
-                        path_game_dir: None,
-                    })
-                    .collect(),
-            },
-        );
+        Config {
+            hide_entries_without_box_art: None,
+            box_art_dir: None,
+            entries: new_titles
+                .iter()
+                .map(|title| ConfigEntry {
+                    title: title.to_string(),
+                    launch_command: Some(CMD.to_string()),
+                    path_box_art: Some(file!().to_string()),
+                    path_game_dir: None,
+                })
+                .collect(),
+        }
+        .apply(&mut entries);
 
         assert_eq!(entries.len(), old_len + 2);
         assert_eq!(entries[10].title, new_titles[0]);
@@ -327,33 +335,63 @@ pub mod test_config {
         let old_len = entries.len();
         let new_titles = ["a", "b", "c"];
 
-        add_custom_entries(
-            &mut entries,
-            Config {
-                box_art_dir: None,
-                entries: vec![
-                    ConfigEntry {
-                        title: new_titles[0].to_string(),
-                        launch_command: None,
-                        path_box_art: Some(file!().to_string()),
-                        path_game_dir: None,
-                    },
-                    ConfigEntry {
-                        title: new_titles[1].to_string(),
-                        launch_command: Some(CMD.to_string()),
-                        path_box_art: None,
-                        path_game_dir: None,
-                    },
-                    ConfigEntry {
-                        title: new_titles[2].to_string(),
-                        launch_command: None,
-                        path_box_art: None,
-                        path_game_dir: Some(file!().to_string()),
-                    },
-                ],
-            },
-        );
+        Config {
+            box_art_dir: None,
+            entries: vec![
+                ConfigEntry {
+                    title: new_titles[0].to_string(),
+                    launch_command: None,
+                    path_box_art: Some(file!().to_string()),
+                    path_game_dir: None,
+                },
+                ConfigEntry {
+                    title: new_titles[1].to_string(),
+                    launch_command: Some(CMD.to_string()),
+                    path_box_art: None,
+                    path_game_dir: None,
+                },
+                ConfigEntry {
+                    title: new_titles[2].to_string(),
+                    launch_command: None,
+                    path_box_art: None,
+                    path_game_dir: Some(file!().to_string()),
+                },
+            ],
+            hide_entries_without_box_art: None,
+        }
+        .apply(&mut entries);
 
         assert_eq!(entries.len(), old_len);
+    }
+
+    #[test]
+    fn test_skips_entries_without_box_art() {
+        let mut entries = get_dummy_games();
+        let old_len = entries.len();
+        let new_titles = ["a", "b"];
+
+        Config {
+            box_art_dir: None,
+            entries: vec![
+                // Should not get skipped
+                ConfigEntry {
+                    title: new_titles[0].to_string(),
+                    launch_command: Some(CMD.to_string()),
+                    path_box_art: Some(file!().to_string()),
+                    path_game_dir: None,
+                },
+                // Should get skipped
+                ConfigEntry {
+                    title: new_titles[1].to_string(),
+                    launch_command: Some(CMD.to_string()),
+                    path_box_art: None,
+                    path_game_dir: None,
+                },
+            ],
+            hide_entries_without_box_art: Some(true),
+        }
+        .apply(&mut entries);
+
+        assert_eq!(entries.len(), old_len + 1);
     }
 }

@@ -110,6 +110,8 @@ The following sources are currently supported:
 Custom entries, for unsupported games (or technically anything you want), can be made by creating a config file at `~/.config/rofi-games/config.toml` (`$XDG_CONFIG_HOME` is respected). Here is an example configuration:
 
 ```toml
+# Allows hiding any entries which don't have box art images defined
+hide_entries_without_box_art = false
 # Directory to find box art in if an absolute path is not given
 box_art_dir = "/home/rolv/.config/rofi-games/box-art"
 
