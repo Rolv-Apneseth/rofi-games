@@ -98,9 +98,6 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
             add_custom_entries(&mut entries, config);
         };
 
-        // Filter out entries without box art
-        entries.retain(|e| e.path_box_art.is_some());
-
         Ok(Mode { entries, api })
     }
 
