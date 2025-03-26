@@ -1,6 +1,6 @@
 <h1 align="center">rofi-games</h1>
 
-<p align="center">Game launching plugin for <code>rofi</code>. Requires a good theme for the best results.</p>
+<p align="center">Game launching plugin for <a href="https://github.com/davatorium/rofi">Rofi</a>. Requires a good theme for the best results.</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/License-GPL_v2-green.svg" alt="License: GPL v2" />
