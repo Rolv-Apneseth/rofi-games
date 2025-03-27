@@ -4,19 +4,20 @@ use serde::Deserialize;
 use std::{error::Error, fs::read_to_string, path::PathBuf, process::Command};
 use tracing::{debug, error, trace, warn};
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Default)]
 pub struct Config {
     hide_entries_without_box_art: Option<bool>,
     box_art_dir: Option<String>,
     entries: Vec<ConfigEntry>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Default)]
 struct ConfigEntry {
     title: String,
     launch_command: Option<String>,
     path_box_art: Option<String>,
     path_game_dir: Option<String>,
+    hide: Option<bool>,
 }
 
 pub fn read_config() -> Option<Config> {
@@ -47,7 +48,7 @@ pub fn read_config() -> Option<Config> {
 impl Config {
     /// Apply config options to the given entries.
     pub fn apply(&self, entries: &mut Vec<Game>) {
-        self.add_custom_entries(entries);
+        self.apply_custom_entries(entries);
 
         if self.hide_entries_without_box_art.unwrap_or(false) {
             entries.retain(|g| g.path_box_art.is_some());
@@ -58,7 +59,7 @@ impl Config {
     ///
     /// NOTE: entries are matched based on the title. Only the first game with the exact title
     /// specified for the custom entry will be modified.
-    fn add_custom_entries(&self, entries: &mut Vec<Game>) {
+    fn apply_custom_entries(&self, entries: &mut Vec<Game>) {
         // Convert parsed config entries into a `Games` collection
         self.entries.iter().for_each(|entry| {
         let ConfigEntry {
@@ -66,7 +67,18 @@ impl Config {
             launch_command: opt_launch_command,
             path_box_art: opt_path_box_art,
             path_game_dir: opt_path_game_dir,
+            hide,
         } = entry;
+
+        // HIDE ENTRY
+        if hide.unwrap_or(false) {
+            if let Some((index, _)) = entries.iter().enumerate().find(|(_, g)| g.title == *title) {
+                entries.swap_remove(index);
+            } else {
+                warn!("Could not find an entry with title '{title}' to hide... skipping")
+            };
+            return;
+        }
 
         let (mut opt_command, mut path_box_art, mut path_game_dir) = (None, None, None);
 
@@ -149,11 +161,6 @@ impl Config {
                     return;
                 };
 
-                if path_box_art.is_none() {
-                    error!("No box art specified for entry with title: '{title}'");
-                    return;
-                };
-
                 entries.push(Game {
                     title: title.clone(),
                     launch_command,
@@ -195,17 +202,15 @@ pub mod test_config {
         let cmd = "new_command";
 
         Config {
-            box_art_dir: None,
             entries: range
                 .clone()
                 .map(|i| ConfigEntry {
                     title: i.to_string(),
                     launch_command: Some(cmd.to_string()),
-                    path_box_art: None,
-                    path_game_dir: None,
+                    ..Default::default()
                 })
                 .collect(),
-            hide_entries_without_box_art: None,
+            ..Default::default()
         }
         .apply(&mut entries);
 
@@ -227,16 +232,14 @@ pub mod test_config {
             .clone()
             .map(|i| ConfigEntry {
                 title: i.to_string(),
-                launch_command: None,
-                path_box_art: None,
                 path_game_dir: Some(PATH_PARENT_DIR.clone()),
+                ..Default::default()
             })
             .collect();
 
         Config {
-            box_art_dir: None,
             entries: config_entries,
-            hide_entries_without_box_art: None,
+            ..Default::default()
         }
         .apply(&mut entries);
 
@@ -285,12 +288,11 @@ pub mod test_config {
                 .clone()
                 .map(|i| ConfigEntry {
                     title: i.to_string(),
-                    launch_command: None,
                     path_box_art: Some(path.clone()),
-                    path_game_dir: None,
+                    ..Default::default()
                 })
                 .collect(),
-            hide_entries_without_box_art: None,
+            ..Default::default()
         }
         .apply(&mut entries);
 
@@ -310,17 +312,16 @@ pub mod test_config {
         let new_titles = ["a", "b"];
 
         Config {
-            hide_entries_without_box_art: None,
-            box_art_dir: None,
             entries: new_titles
                 .iter()
                 .map(|title| ConfigEntry {
                     title: title.to_string(),
                     launch_command: Some(CMD.to_string()),
                     path_box_art: Some(file!().to_string()),
-                    path_game_dir: None,
+                    ..Default::default()
                 })
                 .collect(),
+            ..Default::default()
         }
         .apply(&mut entries);
 
@@ -336,28 +337,26 @@ pub mod test_config {
         let new_titles = ["a", "b", "c"];
 
         Config {
-            box_art_dir: None,
             entries: vec![
                 ConfigEntry {
                     title: new_titles[0].to_string(),
-                    launch_command: None,
                     path_box_art: Some(file!().to_string()),
-                    path_game_dir: None,
+                    ..Default::default()
+                },
+                ConfigEntry {
+                    ..Default::default()
                 },
                 ConfigEntry {
                     title: new_titles[1].to_string(),
-                    launch_command: Some(CMD.to_string()),
-                    path_box_art: None,
-                    path_game_dir: None,
+                    ..Default::default()
                 },
                 ConfigEntry {
                     title: new_titles[2].to_string(),
-                    launch_command: None,
-                    path_box_art: None,
                     path_game_dir: Some(file!().to_string()),
+                    ..Default::default()
                 },
             ],
-            hide_entries_without_box_art: None,
+            ..Default::default()
         }
         .apply(&mut entries);
 
@@ -371,27 +370,74 @@ pub mod test_config {
         let new_titles = ["a", "b"];
 
         Config {
-            box_art_dir: None,
             entries: vec![
                 // Should not get skipped
                 ConfigEntry {
                     title: new_titles[0].to_string(),
                     launch_command: Some(CMD.to_string()),
                     path_box_art: Some(file!().to_string()),
-                    path_game_dir: None,
+                    ..Default::default()
                 },
                 // Should get skipped
                 ConfigEntry {
                     title: new_titles[1].to_string(),
                     launch_command: Some(CMD.to_string()),
-                    path_box_art: None,
-                    path_game_dir: None,
+                    ..Default::default()
                 },
             ],
             hide_entries_without_box_art: Some(true),
+            ..Default::default()
         }
         .apply(&mut entries);
 
         assert_eq!(entries.len(), old_len + 1);
+        assert!(entries.iter().any(|e| e.title == new_titles[0]));
+        assert!(!entries.iter().any(|e| e.title == new_titles[1]));
+    }
+
+    #[test]
+    fn test_skips_hidden_entries() {
+        let mut entries = get_dummy_games();
+        let old_len = entries.len();
+        let new_titles = ["a", "b", "c"];
+
+        Config {
+            entries: vec![
+                // Should not get skipped
+                ConfigEntry {
+                    title: new_titles[0].to_string(),
+                    launch_command: Some(CMD.to_string()),
+                    hide: Some(false),
+                    ..Default::default()
+                },
+                ConfigEntry {
+                    title: new_titles[1].to_string(),
+                    launch_command: Some(CMD.to_string()),
+                    hide: None,
+                    ..Default::default()
+                },
+                // Should get skipped
+                ConfigEntry {
+                    title: new_titles[2].to_string(),
+                    launch_command: Some(CMD.to_string()),
+                    hide: Some(true),
+                    ..Default::default()
+                },
+                // Should get removed
+                ConfigEntry {
+                    title: entries[0].title.to_string(),
+                    hide: Some(true),
+                    ..Default::default()
+                },
+            ],
+            ..Default::default()
+        }
+        .apply(&mut entries);
+
+        // 2 new entries, 1 existing entry hidden
+        assert_eq!(entries.len(), old_len + 2 - 1);
+        assert!(entries.iter().any(|e| e.title == new_titles[0]));
+        assert!(entries.iter().any(|e| e.title == new_titles[1]));
+        assert!(!entries.iter().any(|e| e.title == new_titles[2]));
     }
 }
