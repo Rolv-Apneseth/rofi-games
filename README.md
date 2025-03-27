@@ -133,6 +133,11 @@ path_box_art = "/home/rolv/images/cyberpunk.png"
 [[entries]]
 title = "Minecraft: Fabulously Optimized"
 path_box_art = "fabulously_optimized.png"
+
+# Hide/disable a title
+[[entries]]
+title = "THE FINALS"
+hide = true
 ```
 
 - The `box_art_dir` field is optional, but will be used if the `path_box_art` field of a given entry is not an absolute path.
