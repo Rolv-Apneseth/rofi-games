@@ -9,7 +9,7 @@ license-file = "LICENSE"
 [dependencies]
 tracing = "0.1.*"
 rofi-mode = "0.4.*"
-lib_game_detector = { version = "0.0.16" }
+lib_game_detector = { version = "0.0.18" }
 tracing-subscriber = { version = "0.3.*", features = ["env-filter"] }
 toml = "0.8.*"
 dirs = "5.0.1"
