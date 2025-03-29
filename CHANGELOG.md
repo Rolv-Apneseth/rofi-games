@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ### Bug Fixes
 
+- update `lib_game_detector` to include fix for systems with capitalised "steamapps" directory names - ([b869049](https://github.com/rolv-apneseth/rofi-games/commit/b86904950a571b3ec6f4af257fcca6046aa36851))
+
+---
+## [1.12.0](https://github.com/rolv-apneseth/rofi-games/compare/v1.11.0..v1.12.0) - 2025-03-29
+
+### Bug Fixes
+
 - update `lib_game_detector` for Heroic Launcher Epic games title fix - ([f26a3e8](https://github.com/rolv-apneseth/rofi-games/commit/f26a3e8e0247435f3991b104c1ec2fcd5ba582e9))
 
 ### Features
