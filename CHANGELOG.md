@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 ---
+## [unreleased]
+
+### Bug Fixes
+
+- update `lib_game_detector` for Heroic Launcher Epic games title fix - ([f26a3e8](https://github.com/rolv-apneseth/rofi-games/commit/f26a3e8e0247435f3991b104c1ec2fcd5ba582e9))
+
+### Features
+
+- remove box art requirement for entries - ([ecaed85](https://github.com/rolv-apneseth/rofi-games/commit/ecaed85a99de827fe641d496b7508c7f627d1c26))
+- add config option to allow hiding entries without defined box art - ([b11fdc3](https://github.com/rolv-apneseth/rofi-games/commit/b11fdc3b651740f4e7f5d9db02701ac341ad7c07))
+- add config option to hide an entry - ([0ffcf6d](https://github.com/rolv-apneseth/rofi-games/commit/0ffcf6d76721464d50b232f7bba5924e0159f3b3))
+
+---
 ## [1.11.0](https://github.com/rolv-apneseth/rofi-games/compare/v1.10.9..v1.11.0) - 2025-03-24
 
 ### Bug Fixes
