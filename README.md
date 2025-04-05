@@ -82,7 +82,8 @@ Parsing of installed games has been extracted into a separate library: [lib_game
 The following sources are currently supported:
 
 - Steam
-  - Steam shortcuts (non-Steam games) are also supported
+  - Steam shortcuts (non-Steam games) are also supported. Just make sure to launch the shortcut through
+    Steam at least once first so that the required files are created/updated.
 
 > [!TIP]
 > To add box art for a shortcut using the Steam UI, navigate to the Steam library page (where the different games' box art is shown) and find the desired shortcut, right-click -> Manage -> Set custom artwork
@@ -92,8 +93,8 @@ The following sources are currently supported:
 
 - Lutris
 
-> [!TIP]  
-> To set the cover art, simply right click the entry in the Lutris library, select "Configure", and click on the left-most image to select a new image file.
+> [!TIP]
+> To set the box art, simply right click the entry in the Lutris library, select "Configure", and click on the left-most image to select a new image file.
 
 - Bottles
   - Only games which are in the Library are displayed
