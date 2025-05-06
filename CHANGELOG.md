@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 ---
 ## [unreleased]
 
+### Miscellaneous Tasks
+
+- bug report issue template - ([4207e24](https://github.com/rolv-apneseth/rofi-games/commit/4207e24792f17a1435512377187da76310dc32a4))
+
+---
+## [1.12.2](https://github.com/rolv-apneseth/rofi-games/compare/v1.12.1..v1.12.2) - 2025-04-05
+
 ### Bug Fixes
 
 - update `lib_game_detector` to parse all steam shortcuts from all users - ([05bcebd](https://github.com/rolv-apneseth/rofi-games/commit/05bcebddca7258f87b68646c1e7414faa40d7224))
