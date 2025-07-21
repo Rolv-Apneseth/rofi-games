@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 ---
 ## [unreleased]
 
+### Continuous Integration
+
+- update `checkout` and `git-cliff` versions - ([2238d4e](https://github.com/rolv-apneseth/rofi-games/commit/2238d4e9dd260199b20e34360fa72757747ff180))
+
+### Documentation
+
+- **(readme)** update license badge - ([5c8d09c](https://github.com/rolv-apneseth/rofi-games/commit/5c8d09cfabe06d99146f5aafac0fb8e012eca9ec))
+
 ### Miscellaneous Tasks
 
 - bug report issue template - ([4207e24](https://github.com/rolv-apneseth/rofi-games/commit/4207e24792f17a1435512377187da76310dc32a4))
