@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file.
 
 ### Miscellaneous Tasks
 
+- **(deps)** update `rofi-mode` - ([72886f9](https://github.com/rolv-apneseth/rofi-games/commit/72886f95fe9ca18ad61348150e3f02fccd10fc0a))
 - bug report issue template - ([4207e24](https://github.com/rolv-apneseth/rofi-games/commit/4207e24792f17a1435512377187da76310dc32a4))
 
 ---
