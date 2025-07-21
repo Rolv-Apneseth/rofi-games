@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 ---
 ## [unreleased]
 
+### Bug Fixes
+
+- remove `git-cliff` junk from repo and fix action - ([b9fdcf9](https://github.com/rolv-apneseth/rofi-games/commit/b9fdcf969935da5ce51d48bdeecc4a5bb7e43864))
+
 ### Continuous Integration
 
 - update `checkout` and `git-cliff` versions - ([2238d4e](https://github.com/rolv-apneseth/rofi-games/commit/2238d4e9dd260199b20e34360fa72757747ff180))
