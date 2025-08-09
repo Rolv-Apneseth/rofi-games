@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Bug Fixes
 
 - remove `git-cliff` junk from repo and fix action - ([b9fdcf9](https://github.com/rolv-apneseth/rofi-games/commit/b9fdcf969935da5ce51d48bdeecc4a5bb7e43864))
+- update `lib_game_detector` to parse Steam's new box art filename - ([0e1f41b](https://github.com/rolv-apneseth/rofi-games/commit/0e1f41b5cdba54585a8ebb40497c531e5a7f6700))
 
 ### Continuous Integration
 
