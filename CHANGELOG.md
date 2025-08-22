@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 ---
 ## [unreleased]
 
+### Documentation
+
+- **(readme)** add home manager installation instructions - ([c382690](https://github.com/rolv-apneseth/rofi-games/commit/c38269065e13a64bf37fd64beb03814acc95e9bf))
+
+---
+## [1.12.3](https://github.com/rolv-apneseth/rofi-games/compare/v1.12.2..v1.12.3) - 2025-08-09
+
 ### Bug Fixes
 
 - remove `git-cliff` junk from repo and fix action - ([b9fdcf9](https://github.com/rolv-apneseth/rofi-games/commit/b9fdcf969935da5ce51d48bdeecc4a5bb7e43864))
