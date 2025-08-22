@@ -18,7 +18,16 @@
 paru -S rofi-games
 ```
 
----
+### Home Manager
+
+```nix
+programs.rofi = {
+  enable = true;
+  plugins = with pkgs; [
+    rofi-games
+  ];
+};
+```
 
 ### just
 
@@ -35,8 +44,6 @@ paru -S rofi-games
     ```
 
 Uninstall with `sudo just uninstall`
-
----
 
 ### Manual (not recommended)
 
