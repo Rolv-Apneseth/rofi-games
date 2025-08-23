@@ -3,7 +3,7 @@
 <p align="center">Game launching plugin for <a href="https://github.com/davatorium/rofi">Rofi</a>. Requires a good theme for the best results.</p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/License-AGPL_v3-green.svg" alt="License: GPL v2" />
+  <img src="https://img.shields.io/badge/License-AGPL_v3-green.svg" alt="License: AGPL v3" />
   <img src="https://img.shields.io/github/v/tag/rolv-apneseth/rofi-games?label=version&color=blueviolet" alt="version" />
   <a href="https://aur.archlinux.org/packages/rofi-games"><img src="https://img.shields.io/aur/version/rofi-games" alt="AUR version" /></a>
 </p>
