@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Documentation
 
 - **(readme)** add home manager installation instructions - ([c382690](https://github.com/rolv-apneseth/rofi-games/commit/c38269065e13a64bf37fd64beb03814acc95e9bf))
+- **(readme)** fix alt text on license badge - ([9cfa6a1](https://github.com/rolv-apneseth/rofi-games/commit/9cfa6a1ea0f5bad4fe0e8615cba0cd85246b8b3a))
 
 ---
 ## [1.12.3](https://github.com/rolv-apneseth/rofi-games/compare/v1.12.2..v1.12.3) - 2025-08-09
