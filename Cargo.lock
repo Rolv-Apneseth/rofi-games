@@ -346,9 +346,9 @@ checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "lib_game_detector"
-version = "0.0.21"
+version = "0.0.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dc188016607ec1de01035fa24d7cd390c42e95beede7c54ec99ab55c72e2b206"
+checksum = "3b5a494a1ec8d0ea3d1efa6f63b1bd894a26293f0cca927bec68d3fd43075f37"
 dependencies = [
  "cfg-if",
  "dirs 6.0.0",
@@ -598,7 +598,7 @@ checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
 
 [[package]]
 name = "rofi-games"
-version = "1.12.3"
+version = "1.13.0"
 dependencies = [
  "dirs 5.0.1",
  "is-terminal",

@@ -9,6 +9,7 @@ pub struct Config {
     hide_entries_without_box_art: Option<bool>,
     box_art_dir: Option<String>,
     entries: Vec<ConfigEntry>,
+    fallback_to_icons: Option<bool>,
 }
 
 #[derive(Deserialize, Debug, Default)]
@@ -50,7 +51,18 @@ impl Config {
     pub fn apply(&self, entries: &mut Vec<Game>) {
         self.apply_custom_entries(entries);
 
-        if self.hide_entries_without_box_art.unwrap_or(false) {
+        let hide_entries_without_box_art = self.hide_entries_without_box_art.unwrap_or(false);
+        let fallback_to_icons = self.fallback_to_icons.unwrap_or(true);
+
+        if fallback_to_icons {
+            entries.iter_mut().for_each(|g| {
+                if g.path_box_art.is_none() {
+                    g.path_box_art = g.path_icon.take();
+                }
+            });
+        }
+
+        if hide_entries_without_box_art {
             entries.retain(|g| g.path_box_art.is_some());
         }
     }
@@ -133,10 +145,9 @@ impl Config {
             );
         };
 
-        match entries.iter_mut().find(|e| e.title == *title) {
+        if let Some(matching_entry) = entries.iter_mut().find(|e| e.title == *title) {
             // MODIFY EXISTING ENTRY
-            Some(matching_entry) => {
-                trace!("Matching entry for {title}: {matching_entry:?}");
+            trace!("Matching entry for {title}: {matching_entry:?}");
 
                 if let Some(launch_command) = opt_command {
                     matching_entry.launch_command = launch_command;
@@ -151,9 +162,8 @@ impl Config {
                 if let Some(p) = path_game_dir {
                     matching_entry.path_game_dir = Some(p);
                 }
-            },
+        } else {
             // ADD FULLY CUSTOM ENTRY
-            None => {
                 trace!("Creating fully custom entry for {title}");
 
                 let Some(launch_command) = opt_command else {
@@ -165,9 +175,9 @@ impl Config {
                     title: title.clone(),
                     launch_command,
                     path_box_art,
-                    path_game_dir
+                    path_game_dir,
+                    path_icon: None,
                 })
-            }
         };
     });
     }
@@ -189,6 +199,7 @@ pub mod test_config {
                 path_box_art: Some(PathBuf::default()),
                 path_game_dir: Some(PathBuf::default()),
                 launch_command: Command::new(CMD),
+                path_icon: Some(PathBuf::default()),
             })
             .collect()
     }
@@ -206,7 +217,7 @@ pub mod test_config {
                 .clone()
                 .map(|i| ConfigEntry {
                     title: i.to_string(),
-                    launch_command: Some(cmd.to_string()),
+                    launch_command: Some(cmd.to_owned()),
                     ..Default::default()
                 })
                 .collect(),
@@ -278,7 +289,7 @@ pub mod test_config {
             path = file!().replace("src/", "");
             final_path_to_match = PathBuf::from(box_art_dir.clone().unwrap()).join(path.clone());
         } else {
-            path = file!().to_string();
+            path = file!().to_owned();
             final_path_to_match = PathBuf::from(path.clone());
         };
 
@@ -315,9 +326,9 @@ pub mod test_config {
             entries: new_titles
                 .iter()
                 .map(|title| ConfigEntry {
-                    title: title.to_string(),
-                    launch_command: Some(CMD.to_string()),
-                    path_box_art: Some(file!().to_string()),
+                    title: (*title).to_owned(),
+                    launch_command: Some(CMD.to_owned()),
+                    path_box_art: Some(file!().to_owned()),
                     ..Default::default()
                 })
                 .collect(),
@@ -339,20 +350,20 @@ pub mod test_config {
         Config {
             entries: vec![
                 ConfigEntry {
-                    title: new_titles[0].to_string(),
-                    path_box_art: Some(file!().to_string()),
+                    title: new_titles[0].to_owned(),
+                    path_box_art: Some(file!().to_owned()),
                     ..Default::default()
                 },
                 ConfigEntry {
                     ..Default::default()
                 },
                 ConfigEntry {
-                    title: new_titles[1].to_string(),
+                    title: new_titles[1].to_owned(),
                     ..Default::default()
                 },
                 ConfigEntry {
-                    title: new_titles[2].to_string(),
-                    path_game_dir: Some(file!().to_string()),
+                    title: new_titles[2].to_owned(),
+                    path_game_dir: Some(file!().to_owned()),
                     ..Default::default()
                 },
             ],
@@ -373,15 +384,15 @@ pub mod test_config {
             entries: vec![
                 // Should not get skipped
                 ConfigEntry {
-                    title: new_titles[0].to_string(),
-                    launch_command: Some(CMD.to_string()),
-                    path_box_art: Some(file!().to_string()),
+                    title: new_titles[0].to_owned(),
+                    launch_command: Some(CMD.to_owned()),
+                    path_box_art: Some(file!().to_owned()),
                     ..Default::default()
                 },
                 // Should get skipped
                 ConfigEntry {
-                    title: new_titles[1].to_string(),
-                    launch_command: Some(CMD.to_string()),
+                    title: new_titles[1].to_owned(),
+                    launch_command: Some(CMD.to_owned()),
                     ..Default::default()
                 },
             ],
@@ -405,21 +416,21 @@ pub mod test_config {
             entries: vec![
                 // Should not get skipped
                 ConfigEntry {
-                    title: new_titles[0].to_string(),
-                    launch_command: Some(CMD.to_string()),
+                    title: new_titles[0].to_owned(),
+                    launch_command: Some(CMD.to_owned()),
                     hide: Some(false),
                     ..Default::default()
                 },
                 ConfigEntry {
-                    title: new_titles[1].to_string(),
-                    launch_command: Some(CMD.to_string()),
+                    title: new_titles[1].to_owned(),
+                    launch_command: Some(CMD.to_owned()),
                     hide: None,
                     ..Default::default()
                 },
                 // Should get skipped
                 ConfigEntry {
-                    title: new_titles[2].to_string(),
-                    launch_command: Some(CMD.to_string()),
+                    title: new_titles[2].to_owned(),
+                    launch_command: Some(CMD.to_owned()),
                     hide: Some(true),
                     ..Default::default()
                 },
