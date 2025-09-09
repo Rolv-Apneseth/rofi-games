@@ -96,7 +96,8 @@ The following sources are currently supported:
 > To add box art for a shortcut using the Steam UI, navigate to the Steam library page (where the different games' box art is shown) and find the desired shortcut, right-click -> Manage -> Set custom artwork
 
 - Heroic Games Launcher (all sources, including Amazon and manually added games, should work)
-  - The `GOG` source doesn't store the box art like the others, but the icons, so they won't look good by default.
+  - The `GOG` source doesn't store the box art like the others, but rather the icons. Use the `fallback_to_icons`
+    (enabled by default) option in the configuration to at least show those (though they won't look ideal).
 
 - Lutris
 
@@ -122,6 +123,8 @@ Custom entries, for unsupported games (or technically anything you want), can be
 hide_entries_without_box_art = false
 # Directory to find box art in if an absolute path is not given
 box_art_dir = "/home/rolv/.config/rofi-games/box-art"
+# If the box art for a game is not found, fallback to using the icon
+fallback_to_icons = true
 
 # Define a new custom entry
 [[entries]]

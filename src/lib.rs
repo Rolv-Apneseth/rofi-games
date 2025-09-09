@@ -116,11 +116,10 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
         match event {
             // User accepted an option from the list
             Event::Ok { alt, selected } => {
-                match alt {
-                    // User selected entry regularly, attempt to launch game
-                    false => self.handle_regular_event_ok(selected),
-                    // User selected entry with alternative binding, attempt to open game's root directory
-                    true => self.handle_alt_event_ok(selected),
+                if alt {
+                    self.handle_alt_event_ok(selected)
+                } else {
+                    self.handle_regular_event_ok(selected)
                 }
             }
 
