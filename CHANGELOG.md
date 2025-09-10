@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 ---
 ## [unreleased]
 
+### Miscellaneous Tasks
+
+- **(deps)** bump tracing-subscriber from 0.3.19 to 0.3.20 (#46) - ([087158b](https://github.com/rolv-apneseth/rofi-games/commit/087158b196e14df5e318b930ec3c1d64901cfcc9))
+
+---
+## [1.13.0](https://github.com/rolv-apneseth/rofi-games/compare/v1.12.3..v1.13.0) - 2025-09-09
+
 ### Documentation
 
 - **(readme)** add home manager installation instructions - ([c382690](https://github.com/rolv-apneseth/rofi-games/commit/c38269065e13a64bf37fd64beb03814acc95e9bf))
