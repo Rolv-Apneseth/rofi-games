@@ -1,16 +1,26 @@
+mod config;
+mod data;
+mod db;
+mod utils;
+
 use config::read_config;
 use is_terminal::IsTerminal;
-use lib_game_detector::{data::Game, get_detector};
+use lib_game_detector::get_detector;
+use redb::Database;
 use rofi_mode::{Action, Event};
 use std::process::{self, Command};
 use tracing::{debug, error};
-use tracing_subscriber::{fmt, prelude::*, EnvFilter};
+use tracing_subscriber::{EnvFilter, fmt, prelude::*};
 
-mod config;
+use crate::{
+    data::{GameWithData, wrap_games},
+    db::{bump_entry, init_db},
+};
 
 struct Mode<'rofi> {
-    entries: Vec<Game>,
+    entries: Vec<GameWithData>,
     api: rofi_mode::Api<'rofi>,
+    db: Database,
 }
 
 // UTILS
@@ -19,10 +29,17 @@ impl Mode<'_> {
     ///
     /// # Panics
     /// Panics if the given selected index is out-of-bounds
-    fn get_selected_entry(&mut self, selected: usize) -> &mut Game {
-        self.entries
+    fn get_selected_entry(&mut self, selected: usize) -> &mut GameWithData {
+        let selected = self
+            .entries
             .get_mut(selected)
-            .expect("Selected index is out-of-bounds")
+            .expect("Selected index is out-of-bounds");
+
+        if let Err(e) = bump_entry(&mut self.db, selected) {
+            error!("failed to bump access data DB entry: {e}");
+        };
+
+        selected
     }
 
     /// Attempts to launch selected game
@@ -89,14 +106,18 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
             .with(EnvFilter::from_default_env())
             .init();
 
-        let mut entries = get_detector().get_all_detected_games();
+        let db = init_db().map_err(|e| error!("failed initialising DB: {e}"))?;
 
-        // Add custom entries from config
+        let games = get_detector().get_all_detected_games();
+        let mut entries = wrap_games(games, &db)
+            .map_err(|e| error!("failed to wrap games in inner type: {e}"))?;
+
+        // Apply config, adding custom entries and sorting entries
         if let Some(config) = read_config() {
             config.apply(&mut entries);
         };
 
-        Ok(Mode { entries, api })
+        Ok(Mode { entries, api, db })
     }
 
     fn entries(&mut self) -> usize {

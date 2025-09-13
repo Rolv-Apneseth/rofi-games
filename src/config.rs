@@ -1,8 +1,10 @@
 use dirs::config_dir;
 use lib_game_detector::data::Game;
 use serde::Deserialize;
-use std::{error::Error, fs::read_to_string, path::PathBuf, process::Command};
+use std::{cmp::Ordering, error::Error, fs::read_to_string, path::PathBuf, process::Command};
 use tracing::{debug, error, trace, warn};
+
+use crate::{data::GameWithData, utils::now};
 
 #[derive(Deserialize, Debug, Default)]
 pub struct Config {
@@ -10,6 +12,30 @@ pub struct Config {
     box_art_dir: Option<String>,
     entries: Vec<ConfigEntry>,
     fallback_to_icons: Option<bool>,
+
+    sort: SortConfig,
+}
+
+#[derive(Deserialize, Debug, Default)]
+struct SortConfig {
+    order: Option<SortOrder>,
+    reverse: Option<bool>,
+}
+
+#[derive(Debug, Default, Clone, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum SortOrder {
+    /// Sort games alphabetically by their title.
+    Alphabetical,
+    /// Sort games by recently have been accessed (through this program).
+    Recency,
+    /// Sort games by how often they have been accessed (through this program).
+    Frequency,
+    /// Sort games by a combination of frequency and recency.
+    #[default]
+    Frecency,
+    /// Don't apply any sort order, leaving games in the order they were originally parsed.
+    None,
 }
 
 #[derive(Deserialize, Debug, Default)]
@@ -48,158 +74,260 @@ pub fn read_config() -> Option<Config> {
 
 impl Config {
     /// Apply config options to the given entries.
-    pub fn apply(&self, entries: &mut Vec<Game>) {
+    pub fn apply(&self, entries: &mut Vec<GameWithData>) {
         self.apply_custom_entries(entries);
 
         let hide_entries_without_box_art = self.hide_entries_without_box_art.unwrap_or(false);
         let fallback_to_icons = self.fallback_to_icons.unwrap_or(true);
 
         if fallback_to_icons {
-            entries.iter_mut().for_each(|g| {
-                if g.path_box_art.is_none() {
-                    g.path_box_art = g.path_icon.take();
+            entries.iter_mut().for_each(|entry| {
+                if entry.path_box_art.is_none() {
+                    entry.path_box_art = entry.path_icon.take();
                 }
             });
         }
 
         if hide_entries_without_box_art {
-            entries.retain(|g| g.path_box_art.is_some());
+            entries.retain(|e| e.path_box_art.is_some());
         }
+
+        self.sort_entries(entries);
     }
 
     /// Modify the given game entries with custom entries parsed from the config.
     ///
     /// NOTE: entries are matched based on the title. Only the first game with the exact title
     /// specified for the custom entry will be modified.
-    fn apply_custom_entries(&self, entries: &mut Vec<Game>) {
-        // Convert parsed config entries into a `Games` collection
+    fn apply_custom_entries(&self, entries: &mut Vec<GameWithData>) {
+        // Convert parsed config entries into a `GameWrappers` collection
         self.entries.iter().for_each(|entry| {
-        let ConfigEntry {
-            title,
-            launch_command: opt_launch_command,
-            path_box_art: opt_path_box_art,
-            path_game_dir: opt_path_game_dir,
-            hide,
-        } = entry;
+            let ConfigEntry {
+                title,
+                launch_command: opt_launch_command,
+                path_box_art: opt_path_box_art,
+                path_game_dir: opt_path_game_dir,
+                hide,
+            } = entry;
 
-        // HIDE ENTRY
-        if hide.unwrap_or(false) {
-            if let Some((index, _)) = entries.iter().enumerate().find(|(_, g)| g.title == *title) {
-                entries.swap_remove(index);
-            } else {
-                warn!("Could not find an entry with title '{title}' to hide... skipping")
-            };
-            return;
-        }
-
-        let (mut opt_command, mut path_box_art, mut path_game_dir) = (None, None, None);
-
-        // REQUIRED FIELDS
-        // Launch command
-        if let Some(c) = opt_launch_command {
-            if let Some(split_command) = shlex::split(c) {
-                let mut command = Command::new(&split_command[0]);
-                command.args(&split_command[1..]);
-                opt_command = Some(command);
-            } else {
-                error!("Failed to split the given custom command: {c}");
-                return;
-            };
-        }
-
-        // Box art
-        if let Some(p) = opt_path_box_art {
-            let path = match self.box_art_dir.as_ref() {
-                Some(d) => {
-                    let path_dir = PathBuf::from(d);
-                    if path_dir.is_absolute() {
-                        path_dir.join(p)
-                    } else {
-                        warn!("Ignoring the given `box_art_dir` config option as it is not pointing to an absolute path");
-                        PathBuf::from(p)
-                    }
-                }
-                None => PathBuf::from(p),
-            };
-
-            if path.is_file() {
-                path_box_art = Some(path);
-            } else {
-                error!("The box art path provided for '{title}' could not be found at: {path:?}");
-                return;
-            };
-        };
-
-        // OPTIONAL FIELDS
-        // Game directory
-        if let Some(p) = opt_path_game_dir {
-            let path = PathBuf::from(p);
-            if path.is_dir() {
-                path_game_dir = Some(path);
-            } else {
-                error!("The game directory path provided for '{title}' could not be found: {path:?}");
-            };
-        } else {
-            debug!(
-                "No path to the game directory provided for the custom entry with title: '{title}'"
-            );
-        };
-
-        if let Some(matching_entry) = entries.iter_mut().find(|e| e.title == *title) {
-            // MODIFY EXISTING ENTRY
-            trace!("Matching entry for {title}: {matching_entry:?}");
-
-                if let Some(launch_command) = opt_command {
-                    matching_entry.launch_command = launch_command;
+            // HIDE ENTRY
+            if hide.unwrap_or(false) {
+                if let Some((index, _)) = entries.iter().enumerate().find(|(_, g)| g.title == *title) {
+                    entries.swap_remove(index);
+                } else {
+                    warn!("Could not find an entry with title '{title}' to hide... skipping")
                 };
+                return;
+            }
 
-                match (&matching_entry.path_box_art, path_box_art) {
-                    (_, Some(p)) => matching_entry.path_box_art = Some(p),
-                    (None, _) => error!("No path to the box art specified for entry with title: '{title}'"),
-                    _ => {},
-                }
+            let (mut opt_command, mut path_box_art, mut path_game_dir) = (None, None, None);
 
-                if let Some(p) = path_game_dir {
-                    matching_entry.path_game_dir = Some(p);
-                }
-        } else {
-            // ADD FULLY CUSTOM ENTRY
-                trace!("Creating fully custom entry for {title}");
-
-                let Some(launch_command) = opt_command else {
-                    error!("No launch command specified for entry with title: '{title}'");
+            // REQUIRED FIELDS
+            // Launch command
+            if let Some(c) = opt_launch_command {
+                if let Some(split_command) = shlex::split(c) {
+                    let mut command = Command::new(&split_command[0]);
+                    command.args(&split_command[1..]);
+                    opt_command = Some(command);
+                } else {
+                    error!("Failed to split the given custom command: {c}");
                     return;
                 };
+            }
 
-                entries.push(Game {
-                    title: title.clone(),
-                    launch_command,
-                    path_box_art,
-                    path_game_dir,
-                    path_icon: None,
-                })
+            // Box art
+            if let Some(p) = opt_path_box_art {
+                let path = match self.box_art_dir.as_ref() {
+                    Some(d) => {
+                        let path_dir = PathBuf::from(d);
+                        if path_dir.is_absolute() {
+                            path_dir.join(p)
+                        } else {
+                            warn!("Ignoring the given `box_art_dir` config option as it is not pointing to an absolute path");
+                            PathBuf::from(p)
+                        }
+                    }
+                    None => PathBuf::from(p),
+                };
+
+                if path.is_file() {
+                    path_box_art = Some(path);
+                } else {
+                    error!("The box art path provided for '{title}' could not be found at: {path:?}");
+                    return;
+                };
+            };
+
+            // OPTIONAL FIELDS
+            // GameWrapper directory
+            if let Some(p) = opt_path_game_dir {
+                let path = PathBuf::from(p);
+                if path.is_dir() {
+                    path_game_dir = Some(path);
+                } else {
+                    error!("The game directory path provided for '{title}' could not be found: {path:?}");
+                };
+            } else {
+                debug!(
+                    "No path to the game directory provided for the custom entry with title: '{title}'"
+                );
+            };
+
+            if let Some(matching_entry) = entries.iter_mut().find(|e| e.title == *title) {
+                // MODIFY EXISTING ENTRY
+                trace!("Matching entry for {title}: {:?}", matching_entry.game);
+
+                    if let Some(launch_command) = opt_command {
+                        matching_entry.launch_command = launch_command;
+                    };
+
+                    match (&matching_entry.path_box_art, path_box_art) {
+                        (_, Some(p)) => matching_entry.path_box_art = Some(p),
+                        (None, _) => error!("No path to the box art specified for entry with title: '{title}'"),
+                        _ => {},
+                    }
+
+                    if let Some(p) = path_game_dir {
+                        matching_entry.path_game_dir = Some(p);
+                    }
+            } else {
+                // ADD FULLY CUSTOM ENTRY
+                    trace!("Creating fully custom entry for {title}");
+
+                    let Some(launch_command) = opt_command else {
+                        error!("No launch command specified for entry with title: '{title}'");
+                        return;
+                    };
+
+                    entries.push(GameWithData::from_game(Game {
+                        title: title.clone(),
+                        launch_command,
+                        path_box_art,
+                        path_game_dir,
+                        path_icon: None,
+                    }))
+            };
+        });
+    }
+
+    /// Sort entries.
+    pub fn sort_entries(&self, entries: &mut [GameWithData]) {
+        let sort_order = self.sort.order.clone().unwrap_or_default();
+        let reverse = self.sort.reverse.unwrap_or_default();
+
+        // NOTE: All sorting methods fallback to alphabetical sort for equal entries
+        fn fallback_alphabetical(a: &GameWithData, b: &GameWithData) -> Ordering {
+            a.game.title.to_lowercase().cmp(&b.title.to_lowercase())
+        }
+
+        /// Re-order arguments based on whether the order of elements should be reversed.
+        ///
+        /// i.e. a > b, but if reversing the order, b > a
+        fn order_args<'a>(
+            a: &'a GameWithData,
+            b: &'a GameWithData,
+            reverse: bool,
+        ) -> (&'a GameWithData, &'a GameWithData) {
+            if reverse { (b, a) } else { (a, b) }
+        }
+
+        match sort_order {
+            SortOrder::Recency => {
+                entries.sort_by(|a, b| {
+                    let (a, b) = order_args(a, b, reverse);
+
+                    match b
+                        .access_data
+                        .last_accessed
+                        .cmp(&a.access_data.last_accessed)
+                    {
+                        Ordering::Equal => fallback_alphabetical(a, b),
+                        other => other,
+                    }
+                });
+            }
+            SortOrder::Frequency => {
+                entries.sort_by(|a, b| {
+                    let (a, b) = order_args(a, b, reverse);
+
+                    match b
+                        .access_data
+                        .count_accessed
+                        .cmp(&a.access_data.count_accessed)
+                    {
+                        Ordering::Equal => fallback_alphabetical(a, b),
+                        other => other,
+                    }
+                });
+            }
+            SortOrder::Frecency => {
+                let now = now();
+
+                entries.sort_by(|a, b| {
+                    let (a, b) = order_args(a, b, reverse);
+
+                    let get_score = |last_accessed: u64, count_accessed: u32| -> u64 {
+                        // Skip weight calculations for values which have not been accessed
+                        if last_accessed == 0 || count_accessed == 0 {
+                            return 0;
+                        }
+
+                        let elapsed = now - last_accessed;
+                        let elapsed_days = elapsed.saturating_div(60 * 60 * 24);
+                        let weight_recency = match elapsed_days {
+                            0 => 5000,
+                            1 => 2500,
+                            2 => 1000,
+                            3 => 500,
+                            d => 1000u64.saturating_div(d),
+                        };
+                        let weight_frequency = count_accessed as u64;
+
+                        weight_frequency.saturating_add(weight_recency)
+                    };
+
+                    let af = get_score(a.access_data.last_accessed, a.access_data.count_accessed);
+                    let bf = get_score(b.access_data.last_accessed, b.access_data.count_accessed);
+
+                    match bf.cmp(&af) {
+                        Ordering::Equal => fallback_alphabetical(a, b),
+                        other => other,
+                    }
+                });
+            }
+            SortOrder::Alphabetical => {
+                entries.sort_unstable_by_key(|e| e.title.to_lowercase());
+                if reverse {
+                    entries.reverse();
+                }
+            }
+            SortOrder::None => {}
         };
-    });
     }
 }
 
 #[cfg(test)]
 pub mod test_config {
+    use lib_game_detector::data::Game;
     use std::{ops::Range, sync::LazyLock};
     use test_case::test_case;
+
+    use crate::data::GameWithData;
 
     use super::*;
 
     const CMD: &str = "cmd";
 
-    fn get_dummy_games() -> Vec<Game> {
+    fn get_dummy_games() -> Vec<GameWithData> {
         (1..11)
-            .map(|i| Game {
-                title: i.to_string(),
-                path_box_art: Some(PathBuf::default()),
-                path_game_dir: Some(PathBuf::default()),
-                launch_command: Command::new(CMD),
-                path_icon: Some(PathBuf::default()),
+            .map(|i| {
+                GameWithData::from_game(Game {
+                    title: i.to_string(),
+                    path_box_art: Some(PathBuf::default()),
+                    path_game_dir: Some(PathBuf::default()),
+                    launch_command: Command::new(CMD),
+                    path_icon: Some(PathBuf::default()),
+                })
             })
             .collect()
     }

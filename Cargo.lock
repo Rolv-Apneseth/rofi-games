@@ -30,6 +30,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "175812e0be2bccb6abe50bb8d566126198344f707e304f45c648fd8f2cc0365e"
 
 [[package]]
+name = "byteorder"
+version = "1.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1fd0f2584146f6f2ef48085050886acf353beff7305ebd1ae69500e27c67f64b"
+
+[[package]]
 name = "cairo-rs"
 version = "0.21.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -503,6 +509,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "redb"
+version = "3.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3fefa3e5ff4a369819c3d6df4195873d6f9abad109f13c0d505dbe119cfabb10"
+dependencies = [
+ "libc",
+]
+
+[[package]]
 name = "redox_users"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -534,9 +549,11 @@ checksum = "caf4aa5b0f434c91fe5c7f1ecb6a5ece2130b02ad2a590589dda5146df959001"
 name = "rofi-games"
 version = "1.13.0"
 dependencies = [
+ "byteorder",
  "dirs",
  "is-terminal",
  "lib_game_detector",
+ "redb",
  "rofi-mode",
  "serde",
  "shlex",
