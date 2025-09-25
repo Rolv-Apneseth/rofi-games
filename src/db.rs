@@ -84,7 +84,6 @@ pub fn bump_entry(db: &mut Database, entry: &GameWithData) -> Result<(), redb::E
     trace!("Bumping access data DB entry for '{}'", entry.title);
 
     let write_txn = db.begin_write()?;
-
     {
         let mut table = write_txn
             .open_table(TABLE)
@@ -99,9 +98,7 @@ pub fn bump_entry(db: &mut Database, entry: &GameWithData) -> Result<(), redb::E
             },
         )?;
     };
-
     write_txn.commit()?;
-    db.compact()?;
 
     Ok(())
 }

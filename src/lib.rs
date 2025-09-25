@@ -153,6 +153,11 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
             }
         }
 
+        // Compact DB to save space (1.1M -> 53k on my machine™ with a couple entries)
+        if let Err(e) = self.db.compact() {
+            error!("failed to compact DB: {e}");
+        };
+
         Action::Exit
     }
 
