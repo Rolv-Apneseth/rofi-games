@@ -126,6 +126,18 @@ box_art_dir = "/home/rolv/.config/rofi-games/box-art"
 # If the box art for a game is not found, fallback to using the icon
 fallback_to_icons = true
 
+# Settings relating to the ordering of listed entries
+[sort]
+# Possible options for sort order:
+#  - "alphabetical"
+#  - "none" - don't apply any ordering algorithm
+#  - "frequency" - most frequently accessed
+#  - "recency" - most recently accessed
+#  - "frecency" - weighted combination of frequency and recency (default)
+order = "frecency"
+ # Option to reverse the result of the sort order. Ignored if sort order is none.
+reverse = false
+
 # Define a new custom entry
 [[entries]]
 title = "GDLauncher"
