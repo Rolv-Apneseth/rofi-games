@@ -8,7 +8,7 @@ window {
 }
 
 listview {
-    columns:                        5;
+    columns:                        4;
     padding:                        30px;
 }
 

@@ -40,7 +40,7 @@ listview {
     layout:                         vertical;
     padding:                        60px;
     dynamic:                        true;
-    columns:                        7;
+    columns:                        6;
     spacing:                        20px;
 }
 
