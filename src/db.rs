@@ -80,7 +80,7 @@ pub fn init_db() -> Result<redb::Database, DatabaseError> {
     Database::create(path_db)
 }
 
-pub fn bump_entry(db: &mut Database, entry: &GameWithData) -> Result<(), redb::Error> {
+pub fn bump_entry(db: &Database, entry: &GameWithData) -> Result<(), redb::Error> {
     trace!("Bumping access data DB entry for '{}'", entry.title);
 
     let write_txn = db.begin_write()?;
@@ -101,4 +101,23 @@ pub fn bump_entry(db: &mut Database, entry: &GameWithData) -> Result<(), redb::E
     write_txn.commit()?;
 
     Ok(())
+}
+
+pub fn delete_entry(db: &Database, entry_title: &str) -> Result<Option<AccessData>, redb::Error> {
+    trace!("Deleting access data DB entry for '{}'", entry_title);
+
+    let write_txn = db.begin_write()?;
+    let opt = {
+        let mut table = write_txn
+            .open_table(TABLE)
+            .inspect_err(|e| error!("failed to open DB table: {e}"))?;
+
+        table
+            .remove(entry_title)
+            .inspect_err(|e| error!("failed to remove entry from DB: {e}"))?
+            .map(|o| o.value())
+    };
+    write_txn.commit()?;
+
+    Ok(opt)
 }

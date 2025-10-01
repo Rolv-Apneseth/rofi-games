@@ -75,10 +75,11 @@ For the optimal experience, and to achieve what is shown in the demo image, use 
 
 ## Keybinds
 
-| Keybind           | Default rofi keybind              | Action                     |
-|-------------------|-----------------------------------|----------------------------|
-| `kb-accept-entry` | <kbd>Enter</kbd>                  | Launch game                |
-| `kb-accept-alt`   | <kbd>Shift</kbd>+<kbd>Enter</kbd> | Open game's root directory |
+| Keybind           | Default rofi keybind               | Action                                               |
+| ----------------- | ---------------------------------- | ---------------------------------------------------- |
+| `kb-accept-entry` | <kbd>Enter</kbd>                   | Launch game                                          |
+| `kb-accept-alt`   | <kbd>Shift</kbd>+<kbd>Enter</kbd>  | Open game's root directory                           |
+| `kb-delete-entry` | <kbd>Shift</kbd>+<kbd>Delete</kbd> | Delete game's access data (see [sorting](#sorting)) |
 
 - To change a `rofi` keybind, you can, for example, use `-kb-accept-entry Ctrl+c`
 
@@ -182,6 +183,20 @@ hide = true
 
 > [!TIP]
 > To run a script with spaces in the launch command, you will need to use `\\` before any space characters, e.g. `launch_command = "/home/user/GOG\\ Games/Stardew\\ Valley/start.sh"`. Other options can be passed in directly without escaping spaces.
+
+### Sorting
+
+There are several options for sorting the displayed games, which are outlined above in the example config.
+Most of those options rely on access data, which is stored in a small database file at
+`$XDG_DATA_HOME/rofi-games/access_data.db`.
+
+When launching (or opening the root directory of) a game through `rofi-games`, the access data for
+that game is updated/created, allowing entries to be sorted by how recently and/or frequently
+they've been accessed.
+
+To delete access data for a single game, launch `rofi-games` and use the `kb-delete-entry` outlined
+in [keybinds](#keybinds) (Shift+Delete by default). To delete all access data, simply delete the
+database file.
 
 ## Credit
 

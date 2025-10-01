@@ -9,12 +9,12 @@ use lib_game_detector::get_detector;
 use redb::Database;
 use rofi_mode::{Action, Event};
 use std::process::{self, Command};
-use tracing::{debug, error};
+use tracing::{debug, error, warn};
 use tracing_subscriber::{EnvFilter, fmt, prelude::*};
 
 use crate::{
     data::{GameWithData, wrap_games},
-    db::{bump_entry, init_db},
+    db::{bump_entry, delete_entry, init_db},
 };
 
 struct Mode<'rofi> {
@@ -35,7 +35,7 @@ impl Mode<'_> {
             .get_mut(selected)
             .expect("Selected index is out-of-bounds");
 
-        if let Err(e) = bump_entry(&mut self.db, selected) {
+        if let Err(e) = bump_entry(&self.db, selected) {
             error!("failed to bump access data DB entry: {e}");
         };
 
@@ -85,6 +85,33 @@ impl Mode<'_> {
             }
         }
     }
+
+    /// Deletes access data for the selected game
+    fn handle_delete_event(&mut self, selected: usize) {
+        let title = { self.get_selected_entry(selected).title.clone() };
+        match delete_entry(&self.db, title.as_str()) {
+            Ok(Some(_)) => {}
+            Ok(None) => warn!("could not find access data for entry {title}"),
+            Err(e) => error!("failed to delete access data for entry {title}: {e}"),
+        };
+    }
+
+    /// Get entries to be displayed by mode - games detected on system + custom entries.
+    ///
+    /// Exists in a separate method because the entries need to be re-generated in the case of
+    /// the user deleting access data (sort order likely to change).
+    fn get_entries(db: &Database) -> Result<Vec<GameWithData>, ()> {
+        let games = get_detector().get_all_detected_games();
+        let mut entries =
+            wrap_games(games, db).map_err(|e| error!("failed to wrap games in inner type: {e}"))?;
+
+        // Apply config, adding custom entries and sorting entries
+        if let Some(config) = read_config() {
+            config.apply(&mut entries);
+        };
+
+        Ok(entries)
+    }
 }
 
 // ROFI MODE
@@ -107,15 +134,7 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
             .init();
 
         let db = init_db().map_err(|e| error!("failed initialising DB: {e}"))?;
-
-        let games = get_detector().get_all_detected_games();
-        let mut entries = wrap_games(games, &db)
-            .map_err(|e| error!("failed to wrap games in inner type: {e}"))?;
-
-        // Apply config, adding custom entries and sorting entries
-        if let Some(config) = read_config() {
-            config.apply(&mut entries);
-        };
+        let entries = Self::get_entries(&db)?;
 
         Ok(Mode { entries, api, db })
     }
@@ -135,13 +154,20 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
         _input: &mut rofi_mode::String,
     ) -> rofi_mode::Action {
         match event {
-            // User accepted an option from the list
+            // User accepted an entry from the list
             Event::Ok { alt, selected } => {
                 if alt {
                     self.handle_alt_event_ok(selected)
                 } else {
                     self.handle_regular_event_ok(selected)
                 }
+            }
+
+            // User deleted an entry from the list
+            Event::DeleteEntry { selected } => {
+                self.handle_delete_event(selected);
+                self.entries = Self::get_entries(&self.db).expect("failed resetting entries");
+                return Action::Reset;
             }
 
             // User cancelled selection i.e. pressed `Esc`
