@@ -1,16 +1,26 @@
+mod config;
+mod data;
+mod db;
+mod utils;
+
 use config::read_config;
 use is_terminal::IsTerminal;
-use lib_game_detector::{data::Game, get_detector};
+use lib_game_detector::get_detector;
+use redb::Database;
 use rofi_mode::{Action, Event};
 use std::process::{self, Command};
-use tracing::{debug, error};
-use tracing_subscriber::{fmt, prelude::*, EnvFilter};
+use tracing::{debug, error, warn};
+use tracing_subscriber::{EnvFilter, fmt, prelude::*};
 
-mod config;
+use crate::{
+    data::{GameWithData, wrap_games},
+    db::{bump_entry, delete_entry, init_db},
+};
 
 struct Mode<'rofi> {
-    entries: Vec<Game>,
+    entries: Vec<GameWithData>,
     api: rofi_mode::Api<'rofi>,
+    db: Database,
 }
 
 // UTILS
@@ -19,10 +29,17 @@ impl Mode<'_> {
     ///
     /// # Panics
     /// Panics if the given selected index is out-of-bounds
-    fn get_selected_entry(&mut self, selected: usize) -> &mut Game {
-        self.entries
+    fn get_selected_entry(&mut self, selected: usize) -> &mut GameWithData {
+        let selected = self
+            .entries
             .get_mut(selected)
-            .expect("Selected index is out-of-bounds")
+            .expect("Selected index is out-of-bounds");
+
+        if let Err(e) = bump_entry(&self.db, selected) {
+            error!("failed to bump access data DB entry: {e}");
+        };
+
+        selected
     }
 
     /// Attempts to launch selected game
@@ -68,6 +85,33 @@ impl Mode<'_> {
             }
         }
     }
+
+    /// Deletes access data for the selected game
+    fn handle_delete_event(&mut self, selected: usize) {
+        let title = { self.get_selected_entry(selected).title.clone() };
+        match delete_entry(&self.db, title.as_str()) {
+            Ok(Some(_)) => {}
+            Ok(None) => warn!("could not find access data for entry {title}"),
+            Err(e) => error!("failed to delete access data for entry {title}: {e}"),
+        };
+    }
+
+    /// Get entries to be displayed by mode - games detected on system + custom entries.
+    ///
+    /// Exists in a separate method because the entries need to be re-generated in the case of
+    /// the user deleting access data (sort order likely to change).
+    fn get_entries(db: &Database) -> Result<Vec<GameWithData>, ()> {
+        let games = get_detector().get_all_detected_games();
+        let mut entries =
+            wrap_games(games, db).map_err(|e| error!("failed to wrap games in inner type: {e}"))?;
+
+        // Apply config, adding custom entries and sorting entries
+        if let Some(config) = read_config() {
+            config.apply(&mut entries);
+        };
+
+        Ok(entries)
+    }
 }
 
 // ROFI MODE
@@ -89,14 +133,10 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
             .with(EnvFilter::from_default_env())
             .init();
 
-        let mut entries = get_detector().get_all_detected_games();
+        let db = init_db().map_err(|e| error!("failed initialising DB: {e}"))?;
+        let entries = Self::get_entries(&db)?;
 
-        // Add custom entries from config
-        if let Some(config) = read_config() {
-            config.apply(&mut entries);
-        };
-
-        Ok(Mode { entries, api })
+        Ok(Mode { entries, api, db })
     }
 
     fn entries(&mut self) -> usize {
@@ -114,13 +154,20 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
         _input: &mut rofi_mode::String,
     ) -> rofi_mode::Action {
         match event {
-            // User accepted an option from the list
+            // User accepted an entry from the list
             Event::Ok { alt, selected } => {
                 if alt {
                     self.handle_alt_event_ok(selected)
                 } else {
                     self.handle_regular_event_ok(selected)
                 }
+            }
+
+            // User deleted an entry from the list
+            Event::DeleteEntry { selected } => {
+                self.handle_delete_event(selected);
+                self.entries = Self::get_entries(&self.db).expect("failed resetting entries");
+                return Action::Reset;
             }
 
             // User cancelled selection i.e. pressed `Esc`
@@ -131,6 +178,11 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
                 error!("Unsupported input event: {event:?}")
             }
         }
+
+        // Compact DB to save space (1.1M -> 53k on my machine™ with a couple entries)
+        if let Err(e) = self.db.compact() {
+            error!("failed to compact DB: {e}");
+        };
 
         Action::Exit
     }
