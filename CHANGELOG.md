@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 ---
 ## [unreleased]
 
+### Features
+
+- sorting order (#47) - ([ad9c88e](https://github.com/rolv-apneseth/rofi-games/commit/ad9c88e5526719d28fe01e0a20ae4c131e454863))
+
 ### Miscellaneous Tasks
 
 - **(deps)** bump tracing-subscriber from 0.3.19 to 0.3.20 (#46) - ([087158b](https://github.com/rolv-apneseth/rofi-games/commit/087158b196e14df5e318b930ec3c1d64901cfcc9))
