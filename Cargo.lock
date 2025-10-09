@@ -331,9 +331,9 @@ checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "lib_game_detector"
-version = "0.0.22"
+version = "0.0.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b5a494a1ec8d0ea3d1efa6f63b1bd894a26293f0cca927bec68d3fd43075f37"
+checksum = "4dd25c9a4f85b3aaad5b9a6677d8345cfd0061d6fd172f09999bf3a050ee0b28"
 dependencies = [
  "cfg-if",
  "dirs",

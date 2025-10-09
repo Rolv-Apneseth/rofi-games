@@ -13,6 +13,7 @@ use tracing::{debug, error, warn};
 use tracing_subscriber::{EnvFilter, fmt, prelude::*};
 
 use crate::{
+    config::Config,
     data::{GameWithData, wrap_games},
     db::{bump_entry, delete_entry, init_db},
 };
@@ -21,6 +22,7 @@ struct Mode<'rofi> {
     entries: Vec<GameWithData>,
     api: rofi_mode::Api<'rofi>,
     db: Database,
+    config: Option<Config>,
 }
 
 // UTILS
@@ -100,13 +102,13 @@ impl Mode<'_> {
     ///
     /// Exists in a separate method because the entries need to be re-generated in the case of
     /// the user deleting access data (sort order likely to change).
-    fn get_entries(db: &Database) -> Result<Vec<GameWithData>, ()> {
+    fn get_entries(db: &Database, config: Option<&Config>) -> Result<Vec<GameWithData>, ()> {
         let games = get_detector().get_all_detected_games();
         let mut entries =
             wrap_games(games, db).map_err(|e| error!("failed to wrap games in inner type: {e}"))?;
 
         // Apply config, adding custom entries and sorting entries
-        if let Some(config) = read_config() {
+        if let Some(config) = config {
             config.apply(&mut entries);
         };
 
@@ -134,9 +136,16 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
             .init();
 
         let db = init_db().map_err(|e| error!("failed initialising DB: {e}"))?;
-        let entries = Self::get_entries(&db)?;
+        let config = read_config();
 
-        Ok(Mode { entries, api, db })
+        let entries = Self::get_entries(&db, config.as_ref())?;
+
+        Ok(Mode {
+            entries,
+            api,
+            db,
+            config,
+        })
     }
 
     fn entries(&mut self) -> usize {
@@ -145,7 +154,31 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
 
     fn entry_content(&self, line: usize) -> rofi_mode::String {
         let entry = &self.entries[line];
-        rofi_mode::format!("{}", entry.title)
+
+        let mut show_source = true;
+        let mut use_bold_title = true;
+
+        if let Some(conf) = self.config.as_ref() {
+            if let Some(s) = conf.show_entry_source_text {
+                show_source = s;
+            }
+
+            if let Some(b) = conf.use_bold_entry_title {
+                use_bold_title = b;
+            }
+        }
+
+        let title = if use_bold_title {
+            format!("<b>{}</b>", entry.get_display_title()).into()
+        } else {
+            entry.get_display_title()
+        };
+
+        if show_source {
+            rofi_mode::format!("{title}  <small>({})</small>", entry.get_display_source())
+        } else {
+            rofi_mode::format!("{title}")
+        }
     }
 
     fn react(
@@ -166,7 +199,8 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
             // User deleted an entry from the list
             Event::DeleteEntry { selected } => {
                 self.handle_delete_event(selected);
-                self.entries = Self::get_entries(&self.db).expect("failed resetting entries");
+                self.entries = Self::get_entries(&self.db, self.config.as_ref())
+                    .expect("failed resetting entries");
                 return Action::Reset;
             }
 
@@ -188,11 +222,20 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
     }
 
     fn matches(&self, line: usize, matcher: rofi_mode::Matcher<'_>) -> bool {
-        matcher.matches(&self.entries[line].title)
+        let selected = self
+            .entries
+            .get(line)
+            .expect("Selected index is out-of-bounds");
+
+        matcher.matches(&format!(
+            "{}{}",
+            selected.title,
+            selected.get_display_source()
+        ))
     }
 
     fn entry_style(&self, _line: usize) -> rofi_mode::Style {
-        rofi_mode::Style::default()
+        rofi_mode::Style::MARKUP
     }
 
     fn entry_attributes(&self, _line: usize) -> rofi_mode::Attributes {
@@ -202,14 +245,36 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
     fn entry_icon(&mut self, line: usize, height: u32) -> Option<rofi_mode::cairo::Surface> {
         let entry = &self.entries[line];
 
+        // Validate box art path
+        let path_str = {
+            let Some(path) = entry.path_box_art.as_ref() else {
+                error!("path to box art for '{}' does not exist", entry.title);
+                return None;
+            };
+            let Some(path_str) = path.to_str() else {
+                error!("path to box art for '{}' is not valid unicode", entry.title);
+                return None;
+            };
+            path_str
+        };
+
+        // Validate box art image format support
+        if !self.api.supports_image(path_str) {
+            error!(
+                "rofi does not support displaying the image format of {}",
+                path_str
+            );
+            return None;
+        };
+
         self.api
-            .query_icon(entry.path_box_art.as_ref()?.to_str()?, height)
+            .query_icon(path_str, height)
             .wait(&mut self.api)
             .ok()
     }
 
     fn completed(&self, line: usize) -> rofi_mode::String {
-        self.entry_content(line)
+        rofi_mode::format!("{}", self.entries[line].game.title)
     }
 
     fn preprocess_input(&mut self, input: &str) -> rofi_mode::String {

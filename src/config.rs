@@ -1,5 +1,5 @@
 use dirs::config_dir;
-use lib_game_detector::data::Game;
+use lib_game_detector::data::{Game, SupportedLaunchers};
 use serde::Deserialize;
 use std::{cmp::Ordering, error::Error, fs::read_to_string, path::PathBuf, process::Command};
 use tracing::{debug, error, trace, warn};
@@ -8,10 +8,13 @@ use crate::{data::GameWithData, utils::now};
 
 #[derive(Deserialize, Debug, Default)]
 pub struct Config {
+    pub show_entry_source_text: Option<bool>,
+    pub use_bold_entry_title: Option<bool>,
+
     hide_entries_without_box_art: Option<bool>,
+    fallback_to_icons: Option<bool>,
     box_art_dir: Option<String>,
     entries: Vec<ConfigEntry>,
-    fallback_to_icons: Option<bool>,
 
     sort: SortConfig,
 }
@@ -205,7 +208,9 @@ impl Config {
                         path_box_art,
                         path_game_dir,
                         path_icon: None,
-                    }))
+                        // Steam used as a default
+                        source: SupportedLaunchers::Steam,
+                    }, true))
             };
         });
     }
@@ -321,13 +326,17 @@ pub mod test_config {
     fn get_dummy_games() -> Vec<GameWithData> {
         (1..11)
             .map(|i| {
-                GameWithData::from_game(Game {
-                    title: i.to_string(),
-                    path_box_art: Some(PathBuf::default()),
-                    path_game_dir: Some(PathBuf::default()),
-                    launch_command: Command::new(CMD),
-                    path_icon: Some(PathBuf::default()),
-                })
+                GameWithData::from_game(
+                    Game {
+                        title: i.to_string(),
+                        path_box_art: Some(PathBuf::default()),
+                        path_game_dir: Some(PathBuf::default()),
+                        launch_command: Command::new(CMD),
+                        path_icon: Some(PathBuf::default()),
+                        source: SupportedLaunchers::Steam,
+                    },
+                    false,
+                )
             })
             .collect()
     }

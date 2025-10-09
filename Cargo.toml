@@ -10,7 +10,7 @@ rust-version = "1.89"
 [dependencies]
 tracing = "0.1"
 rofi-mode = "0.5"
-lib_game_detector = { version = "=0.0.22" }
+lib_game_detector = { version = "=0.0.25", default-features = false }
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 toml = "0.9"
 dirs = "6.0"
