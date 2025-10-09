@@ -110,49 +110,78 @@ mod test {
     use super::*;
     use lib_game_detector::data::Game;
 
-    fn get_dummy(title: &str, is_custom: bool) -> GameWithData {
-        let game = Game {
-            title: title.to_owned(),
-            path_box_art: Some(PathBuf::default()),
-            path_game_dir: Some(PathBuf::default()),
-            launch_command: Command::new(""),
-            path_icon: Some(PathBuf::default()),
-            source: SupportedLaunchers::Steam,
-        };
-
-        GameWithData {
-            game,
-            is_custom,
-            access_data: AccessData::default(),
-        }
-    }
-
     #[test]
     fn test_display_title() {
-        assert_eq!(
-            get_dummy("test", false).get_display_title().to_string(),
-            "test".to_owned()
-        );
-        assert_eq!(
-            get_dummy("", false).get_display_title().to_string(),
-            "".to_owned()
-        );
+        let get_dummy = |title: &str| {
+            let game = Game {
+                title: title.to_owned(),
+                path_box_art: Some(PathBuf::default()),
+                path_game_dir: Some(PathBuf::default()),
+                launch_command: Command::new(""),
+                path_icon: Some(PathBuf::default()),
+                source: SupportedLaunchers::Steam,
+            };
+
+            GameWithData {
+                game,
+                is_custom: false,
+                access_data: AccessData::default(),
+            }
+        };
 
         assert_eq!(
-            get_dummy("test & test", false)
-                .get_display_title()
-                .to_string(),
+            get_dummy("test").get_display_title().to_string(),
+            "test".to_owned()
+        );
+        assert_eq!(get_dummy("").get_display_title().to_string(), "".to_owned());
+
+        assert_eq!(
+            get_dummy("test & test").get_display_title().to_string(),
             "test &amp; test".to_owned()
         );
         assert_eq!(
-            get_dummy("'> & <'", false).get_display_title().to_string(),
+            get_dummy("'> & <'").get_display_title().to_string(),
             "&#39;&gt; &amp; &lt;&#39;".to_owned()
         );
         assert_eq!(
-            get_dummy("tab\t&\t<", false)
-                .get_display_title()
-                .to_string(),
+            get_dummy("tab\t&\t<").get_display_title().to_string(),
             "tab\t&amp;\t&lt;".to_owned()
+        );
+    }
+
+    #[test]
+    fn test_display_source() {
+        use SupportedLaunchers::*;
+
+        let get_dummy = |source: SupportedLaunchers, is_custom: bool| {
+            let game = Game {
+                title: String::new(),
+                path_box_art: Some(PathBuf::default()),
+                path_game_dir: Some(PathBuf::default()),
+                launch_command: Command::new(""),
+                path_icon: Some(PathBuf::default()),
+                source,
+            };
+
+            GameWithData {
+                game,
+                is_custom,
+                access_data: AccessData::default(),
+            }
+        };
+
+        assert_eq!(get_dummy(Steam, false).get_display_source(), "Steam");
+        assert_eq!(get_dummy(Steam, true).get_display_source(), "Custom");
+        assert_eq!(get_dummy(Lutris, false).get_display_source(), "Lutris");
+        assert_eq!(get_dummy(Bottles, true).get_display_source(), "Custom");
+
+        assert_eq!(
+            get_dummy(HeroicGamesAmazon, false).get_display_source(),
+            "Heroic Games Launcher"
+        );
+        assert_eq!(
+            get_dummy(HeroicGamesEpic, false).get_display_source(),
+            "Heroic Games Launcher"
         );
     }
 }
