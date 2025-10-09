@@ -40,9 +40,9 @@ impl GameWithData {
 
         // Escape characters
         let title = self.title.to_owned();
+        let title = title.replace('&', "&amp;");
         let title = title.replace('>', "&gt;");
         let title = title.replace('<', "&lt;");
-        let title = title.replace('&', "&amp;");
         let title = title.replace('\'', "&#39;");
         title.into()
     }
@@ -101,4 +101,58 @@ pub fn wrap_games(games: Vec<Game>, db: &Database) -> Result<Vec<GameWithData>, 
             wrapper
         })
         .collect())
+}
+
+#[cfg(test)]
+mod test {
+    use std::{path::PathBuf, process::Command};
+
+    use super::*;
+    use lib_game_detector::data::Game;
+
+    fn get_dummy(title: &str, is_custom: bool) -> GameWithData {
+        let game = Game {
+            title: title.to_owned(),
+            path_box_art: Some(PathBuf::default()),
+            path_game_dir: Some(PathBuf::default()),
+            launch_command: Command::new(""),
+            path_icon: Some(PathBuf::default()),
+            source: SupportedLaunchers::Steam,
+        };
+
+        GameWithData {
+            game,
+            is_custom,
+            access_data: AccessData::default(),
+        }
+    }
+
+    #[test]
+    fn test_display_title() {
+        assert_eq!(
+            get_dummy("test", false).get_display_title().to_string(),
+            "test".to_owned()
+        );
+        assert_eq!(
+            get_dummy("", false).get_display_title().to_string(),
+            "".to_owned()
+        );
+
+        assert_eq!(
+            get_dummy("test & test", false)
+                .get_display_title()
+                .to_string(),
+            "test &amp; test".to_owned()
+        );
+        assert_eq!(
+            get_dummy("'> & <'", false).get_display_title().to_string(),
+            "&#39;&gt; &amp; &lt;&#39;".to_owned()
+        );
+        assert_eq!(
+            get_dummy("tab\t&\t<", false)
+                .get_display_title()
+                .to_string(),
+            "tab\t&amp;\t&lt;".to_owned()
+        );
+    }
 }
