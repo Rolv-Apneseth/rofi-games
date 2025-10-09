@@ -2,7 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 ---
-## [unreleased]
+## [1.15.0](https://github.com/rolv-apneseth/rofi-games/compare/v1.14.0..v1.15.0) - 2025-10-09
+
+### Features
+
+- display the source for each entry next to it's title (configurable) (#49) - ([f606f0d](https://github.com/rolv-apneseth/rofi-games/commit/f606f0d9cbbd149648cd7c47c5cbde76b758f662))
+
+---
+## [1.14.0](https://github.com/rolv-apneseth/rofi-games/compare/v1.13.0..v1.14.0) - 2025-10-02
 
 ### Features
 
