@@ -10,6 +10,11 @@
 
 ![rofi-games - demo image](https://github.com/Rolv-Apneseth/rofi-games/assets/69486699/62b89187-c94d-464f-a942-2e66385db5e0)
 
+> [!NOTE]
+> If you want similar functionality to this plugin without using `rofi`, or if you don't need all
+> of the extra features this standalone plugin provides, checkout [rgd](https://github.com/Rolv-Apneseth/rgd)
+> as an alternative.
+
 ## Installation
 
 ### AUR
