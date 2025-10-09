@@ -127,6 +127,12 @@ box_art_dir = "/home/rolv/.config/rofi-games/box-art"
 # If the box art for a game is not found, fallback to using the icon
 fallback_to_icons = true
 
+[style]
+# Show the source launcher next to the title of each entry
+show_entry_source_text = true
+# Make entry titles bold - recommended if showing the source text
+use_bold_entry_title = true
+
 # Settings relating to the ordering of listed entries
 [sort]
 # Possible options for sort order:
