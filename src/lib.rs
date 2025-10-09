@@ -13,7 +13,7 @@ use tracing::{debug, error, warn};
 use tracing_subscriber::{EnvFilter, fmt, prelude::*};
 
 use crate::{
-    config::StyleConfig,
+    config::Config,
     data::{GameWithData, wrap_games},
     db::{bump_entry, delete_entry, init_db},
 };
@@ -22,8 +22,7 @@ struct Mode<'rofi> {
     entries: Vec<GameWithData>,
     api: rofi_mode::Api<'rofi>,
     db: Database,
-
-    style_config: StyleConfig,
+    config: Option<Config>,
 }
 
 // UTILS
@@ -103,20 +102,17 @@ impl Mode<'_> {
     ///
     /// Exists in a separate method because the entries need to be re-generated in the case of
     /// the user deleting access data (sort order likely to change).
-    fn get_entries(db: &Database) -> Result<(Vec<GameWithData>, StyleConfig), ()> {
-        let mut style_config = None;
-
+    fn get_entries(db: &Database, config: Option<&Config>) -> Result<Vec<GameWithData>, ()> {
         let games = get_detector().get_all_detected_games();
         let mut entries =
             wrap_games(games, db).map_err(|e| error!("failed to wrap games in inner type: {e}"))?;
 
         // Apply config, adding custom entries and sorting entries
-        if let Some(config) = read_config() {
+        if let Some(config) = config {
             config.apply(&mut entries);
-            style_config = Some(config.style);
         };
 
-        Ok((entries, style_config.unwrap_or_default()))
+        Ok(entries)
     }
 }
 
@@ -140,13 +136,15 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
             .init();
 
         let db = init_db().map_err(|e| error!("failed initialising DB: {e}"))?;
-        let (entries, style_config) = Self::get_entries(&db)?;
+        let config = read_config();
+
+        let entries = Self::get_entries(&db, config.as_ref())?;
 
         Ok(Mode {
             entries,
             api,
             db,
-            style_config,
+            config,
         })
     }
 
@@ -157,8 +155,18 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
     fn entry_content(&self, line: usize) -> rofi_mode::String {
         let entry = &self.entries[line];
 
-        let show_source = self.style_config.show_entry_source_text.unwrap_or(true);
-        let use_bold_title = self.style_config.use_bold_entry_title.unwrap_or(true);
+        let mut show_source = true;
+        let mut use_bold_title = true;
+
+        if let Some(conf) = self.config.as_ref() {
+            if let Some(s) = conf.show_entry_source_text {
+                show_source = s;
+            }
+
+            if let Some(b) = conf.use_bold_entry_title {
+                use_bold_title = b;
+            }
+        }
 
         let title = if use_bold_title {
             format!("<b>{}</b>", entry.get_display_title()).into()
@@ -191,9 +199,8 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
             // User deleted an entry from the list
             Event::DeleteEntry { selected } => {
                 self.handle_delete_event(selected);
-                self.entries = Self::get_entries(&self.db)
-                    .expect("failed resetting entries")
-                    .0;
+                self.entries = Self::get_entries(&self.db, self.config.as_ref())
+                    .expect("failed resetting entries");
                 return Action::Reset;
             }
 

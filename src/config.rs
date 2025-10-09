@@ -8,19 +8,15 @@ use crate::{data::GameWithData, utils::now};
 
 #[derive(Deserialize, Debug, Default)]
 pub struct Config {
+    pub show_entry_source_text: Option<bool>,
+    pub use_bold_entry_title: Option<bool>,
+
     hide_entries_without_box_art: Option<bool>,
     fallback_to_icons: Option<bool>,
     box_art_dir: Option<String>,
     entries: Vec<ConfigEntry>,
 
     sort: SortConfig,
-    pub style: StyleConfig,
-}
-
-#[derive(Deserialize, Debug, Default)]
-pub struct StyleConfig {
-    pub show_entry_source_text: Option<bool>,
-    pub use_bold_entry_title: Option<bool>,
 }
 
 #[derive(Deserialize, Debug, Default)]
