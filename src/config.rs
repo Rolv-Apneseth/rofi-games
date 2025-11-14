@@ -429,6 +429,31 @@ pub mod test_config {
         });
     }
 
+    #[test]
+    fn test_add_empty_launch_environment_does_nothing() {
+        let mut entries = get_dummy_games();
+
+        let cmd = "new_command";
+
+        Config {
+            entries: vec![ConfigEntry {
+                title: String::from("1"),
+                launch_command: Some(cmd.to_owned()),
+                launch_env: Some(HashMap::from([])),
+                ..Default::default()
+            }],
+            ..Default::default()
+        }
+        .apply(&mut entries);
+
+        // Launch command changed along with environment, but nothing else
+        let entry = entries.iter().find(|e| e.title == "1").unwrap();
+        assert_eq!(entry.launch_command.get_program(), cmd);
+        assert_eq!(entry.launch_command.get_envs().len(), 0);
+        assert!(entry.path_game_dir.is_some());
+        assert!(entry.path_box_art.is_some());
+    }
+
     #[test_case(1..2; "single")]
     #[test_case(3..7; "multiple")]
     #[test_case(1..11; "all")]
