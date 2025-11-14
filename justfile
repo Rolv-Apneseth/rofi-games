@@ -1,4 +1,5 @@
 alias b := build
+alias bn := build-nightly
 alias i := install
 alias u := uninstall
 alias c := clean
@@ -39,6 +40,9 @@ default:
 # Build
 build:
     RUSTFLAGS="{{ RUSTFLAGS }}" cargo build --release --lib
+
+build-nightly:
+    RUSTFLAGS="{{ RUSTFLAGS }}" cargo +nightly build -Z build-std=std,panic_abort -Z build-std-features="optimize_for_size" --release --lib
 
 # Build + install
 install: build
