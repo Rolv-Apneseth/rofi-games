@@ -250,19 +250,16 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
 
         // Validate box art path
         let path_str = {
-            let Some(path) = entry.path_box_art.as_ref() else {
-                error!("path to box art for '{}' does not exist", entry.title);
+            let path = entry.path_box_art.as_ref()?;
+            if !path.is_file() {
+                warn!("path to box art for '{}' does not exist", entry.title);
                 return None;
-            };
-            let Some(path_str) = path.to_str() else {
-                error!("path to box art for '{}' is not valid unicode", entry.title);
-                return None;
-            };
-            path_str
+            }
+            path.to_string_lossy().to_string()
         };
 
         // Validate box art image format support
-        if !self.api.supports_image(path_str) {
+        if !self.api.supports_image(&path_str) {
             error!(
                 "rofi does not support displaying the image format of {}",
                 path_str
@@ -271,7 +268,7 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
         };
 
         self.api
-            .query_icon(path_str, height)
+            .query_icon(&path_str, height)
             .wait(&mut self.api)
             .ok()
     }
