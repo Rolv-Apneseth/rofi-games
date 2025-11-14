@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 ---
+## [unreleased]
+
+### Features
+
+- update `lib_game_detector` for `Itch` support (#51) - ([9c14cea](https://github.com/rolv-apneseth/rofi-games/commit/9c14cea049c52631a6eb4f54fdc2b08e7a40d29a))
+
+---
 ## [1.15.0](https://github.com/rolv-apneseth/rofi-games/compare/v1.14.0..v1.15.0) - 2025-10-09
 
 ### Features
