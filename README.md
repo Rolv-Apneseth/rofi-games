@@ -115,6 +115,8 @@ The following sources are currently supported:
 
 - Itch ([itch.io](https://itch.io) app)
   - None of these entries have box art or icons, as they are specified as URLs rather than local files.
+  - All itch.io games are invoked directly through a discovered interpreter script
+  - You may use `launch_env` in custom entries to control/override the environment for the game before it is launched
 
 - Instances from the following modded Minecraft launchers:
     1. Prism Launcher
@@ -155,6 +157,8 @@ reverse = false
 [[entries]]
 title = "GDLauncher"
 launch_command = "gdlauncher"
+# Overrides environment variables before running the launch command
+launch_env = { LOG_LEVEL = "info", "can_quote_key_too" = "some_value"}
 # Looks for the image in the defined `box_art_dir`
 path_box_art = "gdlauncher.png"
 path_game_dir = "/opt/GDLauncher"
@@ -163,6 +167,11 @@ path_game_dir = "/opt/GDLauncher"
 [[entries]]
 title = "Cyberpunk 2077"
 path_box_art = "/home/rolv/images/cyberpunk.png"
+
+# Run the game with a different SDL driver
+[[entries]]
+title = "PyGame"
+launch_env = { SDL_VIDEODRIVER = "x11" }
 
 # Define box art for a title e.g. Minecraft instances
 # Modded Minecraft instances are always prefixed with "Minecraft: "
@@ -183,7 +192,7 @@ hide = true
 > [!TIP]
 > [SteamGridDB](https://www.steamgriddb.com/grids) is a great place to find box art images for games.
 
-- In the first entry, a custom entry is defined for `GDLauncher`. All fields must be defined, except for `path_game_dir`.
+- In the first entry, a custom entry is defined for `GDLauncher`. All fields must be defined, except for `path_game_dir` and `launch_env`.
 
 - In the second entry, a game already detected by `lib_game_detector` is matched by the `title` field. The
   custom entry is used to override certain fields for that entry, e.g. changing the box art image.
@@ -195,6 +204,9 @@ hide = true
 
 > [!TIP]
 > To run a script with spaces in the launch command, you will need to use `\\` before any space characters, e.g. `launch_command = "/home/user/GOG\\ Games/Stardew\\ Valley/start.sh"`. Other options can be passed in directly without escaping spaces.
+
+> [!INFO]
+> Note that `launch_env` only takes effect on games that are invoked directly by the launch command (defined either in the config file or discovered). For discovered games, only itch.io games are currently supported. All other discovered games are invoked indirectly and the custom environment variables may not be respected in those cases.
 
 ### Sorting
 
