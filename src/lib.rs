@@ -4,13 +4,16 @@ mod db;
 mod utils;
 
 use config::read_config;
-use is_terminal::IsTerminal;
 use lib_game_detector::get_detector;
 use redb::Database;
 use rofi_mode::{Action, Event};
-use std::process::{self, Command};
 use tracing::{debug, error, warn};
 use tracing_subscriber::{EnvFilter, fmt, prelude::*};
+
+use std::{
+    io::IsTerminal,
+    process::{self, Command},
+};
 
 use crate::{
     config::Config,
