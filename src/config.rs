@@ -1,7 +1,10 @@
 use dirs::config_dir;
 use lib_game_detector::data::{Game, SupportedLaunchers};
 use serde::Deserialize;
-use std::{cmp::Ordering, error::Error, fs::read_to_string, path::PathBuf, process::Command};
+use std::{
+    cmp::Ordering, collections::HashMap, error::Error, fs::read_to_string, path::PathBuf,
+    process::Command,
+};
 use tracing::{debug, error, trace, warn};
 
 use crate::{data::GameWithData, utils::now};
@@ -45,6 +48,7 @@ pub enum SortOrder {
 struct ConfigEntry {
     title: String,
     launch_command: Option<String>,
+    launch_env: Option<HashMap<String, String>>,
     path_box_art: Option<String>,
     path_game_dir: Option<String>,
     hide: Option<bool>,
@@ -108,6 +112,7 @@ impl Config {
             let ConfigEntry {
                 title,
                 launch_command: opt_launch_command,
+                launch_env: opt_launch_env,
                 path_box_art: opt_path_box_art,
                 path_game_dir: opt_path_game_dir,
                 hide,
@@ -184,6 +189,12 @@ impl Config {
                         matching_entry.launch_command = launch_command;
                     };
 
+                    // Launch environment injection when existing launch command is provided by
+                    // either game discovery or a custom entry definition
+                    if let Some(env_items) = opt_launch_env {
+                        matching_entry.launch_command.envs(env_items);
+                    }
+
                     match (&matching_entry.path_box_art, path_box_art) {
                         (_, Some(p)) => matching_entry.path_box_art = Some(p),
                         (None, _) => error!("No path to the box art specified for entry with title: '{title}'"),
@@ -197,10 +208,15 @@ impl Config {
                 // ADD FULLY CUSTOM ENTRY
                     trace!("Creating fully custom entry for {title}");
 
-                    let Some(launch_command) = opt_command else {
+                    let Some(mut launch_command) = opt_command else {
                         error!("No launch command specified for entry with title: '{title}'");
                         return;
                     };
+
+                    // Launch environment injection when there is no existing launch command provided by game discovery
+                    if let Some(env_items) = opt_launch_env {
+                        launch_command.envs(env_items);
+                    }
 
                     entries.push(GameWithData::from_game(Game {
                         title: title.clone(),
@@ -233,7 +249,11 @@ impl Config {
             b: &'a GameWithData,
             reverse: bool,
         ) -> (&'a GameWithData, &'a GameWithData) {
-            if reverse { (b, a) } else { (a, b) }
+            if reverse {
+                (b, a)
+            } else {
+                (a, b)
+            }
         }
 
         match sort_order {
@@ -314,7 +334,7 @@ impl Config {
 #[cfg(test)]
 pub mod test_config {
     use lib_game_detector::data::Game;
-    use std::{ops::Range, sync::LazyLock};
+    use std::{ffi::OsStr, ops::Range, sync::LazyLock};
     use test_case::test_case;
 
     use crate::data::GameWithData;
@@ -366,6 +386,87 @@ pub mod test_config {
         range.for_each(|i| {
             let entry = entries.iter().find(|e| e.title == i.to_string()).unwrap();
             assert_eq!(entry.launch_command.get_program(), cmd);
+            assert!(entry.path_game_dir.is_some(),);
+            assert!(entry.path_box_art.is_some());
+        });
+    }
+
+    #[test_case(1..2; "single")]
+    #[test_case(3..7; "multiple")]
+    #[test_case(1..11; "all")]
+    fn test_add_custom_launch_environment_overrides_custom_launch_command(range: Range<u16>) {
+        let mut entries = get_dummy_games();
+
+        let cmd = "new_command";
+
+        Config {
+            entries: range
+                .clone()
+                .map(|i| ConfigEntry {
+                    title: i.to_string(),
+                    launch_command: Some(cmd.to_owned()),
+                    launch_env: Some(HashMap::from([
+                        (String::from("Key1"), String::from("Value1")),
+                        (String::from("Key2"), String::from("Value2")),
+                    ])),
+                    ..Default::default()
+                })
+                .collect(),
+            ..Default::default()
+        }
+        .apply(&mut entries);
+
+        // Launch command changed along with environment, but nothing else
+        range.for_each(|i| {
+            let entry = entries.iter().find(|e| e.title == i.to_string()).unwrap();
+            let envs: Vec<(&OsStr, Option<&OsStr>)> = entry.launch_command.get_envs().collect();
+            assert_eq!(entry.launch_command.get_program(), cmd);
+            assert_eq!(
+                envs,
+                &[
+                    (OsStr::new("Key1"), Some(OsStr::new("Value1"))),
+                    (OsStr::new("Key2"), Some(OsStr::new("Value2"))),
+                ]
+            );
+            assert!(entry.path_game_dir.is_some(),);
+            assert!(entry.path_box_art.is_some());
+        });
+    }
+
+    #[test_case(1..2; "single")]
+    #[test_case(3..7; "multiple")]
+    #[test_case(1..11; "all")]
+    fn test_add_custom_launch_environment_overrides_discovered_launch_command(range: Range<u16>) {
+        let mut entries = get_dummy_games();
+
+        Config {
+            entries: range
+                .clone()
+                .map(|i| ConfigEntry {
+                    title: i.to_string(),
+                    launch_env: Some(HashMap::from([
+                        (String::from("Key1"), String::from("Value1")),
+                        (String::from("Key2"), String::from("Value2")),
+                    ])),
+                    ..Default::default()
+                })
+                .collect(),
+            ..Default::default()
+        }
+        .apply(&mut entries);
+
+        // Launch command changed along with environment, but nothing else
+        range.for_each(|i| {
+            let entry = entries.iter().find(|e| e.title == i.to_string()).unwrap();
+            let envs: Vec<(&OsStr, Option<&OsStr>)> = entry.launch_command.get_envs().collect();
+            assert_eq!(entry.launch_command.get_program(), CMD);
+            assert_eq!(
+                envs,
+                &[
+                    (OsStr::new("Key1"), Some(OsStr::new("Value1"))),
+                    (OsStr::new("Key2"), Some(OsStr::new("Value2"))),
+                ]
+            );
             assert!(entry.path_game_dir.is_some(),);
             assert!(entry.path_box_art.is_some());
         });
