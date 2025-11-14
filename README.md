@@ -111,7 +111,10 @@ The following sources are currently supported:
 > To set the box art, simply right click the entry in the Lutris library, select "Configure", and click on the left-most image to select a new image file.
 
 - Bottles
-  - Only games which are in the Library are displayed
+  - Only games which are in the Library are displayed.
+
+- Itch ([itch.io](https://itch.io) app)
+  - None of these entries have box art or icons, as they are specified as URLs rather than local files.
 
 - Instances from the following modded Minecraft launchers:
     1. Prism Launcher
