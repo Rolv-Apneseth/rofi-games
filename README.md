@@ -115,6 +115,7 @@ The following sources are currently supported:
 
 - Itch ([itch.io](https://itch.io) app)
   - None of these entries have box art or icons, as they are specified as URLs rather than local files.
+  - You may use `launch_env` in custom entries to control/override the environment for the game before it is launched
 
 - Instances from the following modded Minecraft launchers:
     1. Prism Launcher
@@ -155,6 +156,8 @@ reverse = false
 [[entries]]
 title = "GDLauncher"
 launch_command = "gdlauncher"
+# Overrides environment variables before running the launch command
+launch_env = { LOG_LEVEL = "info", "can_quote_key_too" = "some_value"}
 # Looks for the image in the defined `box_art_dir`
 path_box_art = "gdlauncher.png"
 path_game_dir = "/opt/GDLauncher"
@@ -163,6 +166,11 @@ path_game_dir = "/opt/GDLauncher"
 [[entries]]
 title = "Cyberpunk 2077"
 path_box_art = "/home/rolv/images/cyberpunk.png"
+
+# Run the game with a different SDL driver
+[[entries]]
+title = "PyGame"
+launch_env = { SDL_VIDEODRIVER = "x11" }
 
 # Define box art for a title e.g. Minecraft instances
 # Modded Minecraft instances are always prefixed with "Minecraft: "
@@ -183,7 +191,7 @@ hide = true
 > [!TIP]
 > [SteamGridDB](https://www.steamgriddb.com/grids) is a great place to find box art images for games.
 
-- In the first entry, a custom entry is defined for `GDLauncher`. All fields must be defined, except for `path_game_dir`.
+- In the first entry, a custom entry is defined for `GDLauncher`. All fields must be defined, except for `path_game_dir` and `launch_env`.
 
 - In the second entry, a game already detected by `lib_game_detector` is matched by the `title` field. The
   custom entry is used to override certain fields for that entry, e.g. changing the box art image.
