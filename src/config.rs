@@ -249,11 +249,7 @@ impl Config {
             b: &'a GameWithData,
             reverse: bool,
         ) -> (&'a GameWithData, &'a GameWithData) {
-            if reverse {
-                (b, a)
-            } else {
-                (a, b)
-            }
+            if reverse { (b, a) } else { (a, b) }
         }
 
         match sort_order {
