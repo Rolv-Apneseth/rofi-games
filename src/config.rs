@@ -249,7 +249,11 @@ impl Config {
             b: &'a GameWithData,
             reverse: bool,
         ) -> (&'a GameWithData, &'a GameWithData) {
-            if reverse { (b, a) } else { (a, b) }
+            if reverse {
+                (b, a)
+            } else {
+                (a, b)
+            }
         }
 
         match sort_order {
@@ -446,7 +450,6 @@ pub mod test_config {
         }
         .apply(&mut entries);
 
-        // Launch command changed along with environment, but nothing else
         let entry = entries.iter().find(|e| e.title == "1").unwrap();
         assert_eq!(entry.launch_command.get_program(), cmd);
         assert_eq!(entry.launch_command.get_envs().len(), 0);

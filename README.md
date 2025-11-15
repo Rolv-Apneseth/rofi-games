@@ -115,7 +115,6 @@ The following sources are currently supported:
 
 - Itch ([itch.io](https://itch.io) app)
   - None of these entries have box art or icons, as they are specified as URLs rather than local files.
-  - All itch.io games are invoked directly through a discovered interpreter script
   - You may use `launch_env` in custom entries to control/override the environment for the game before it is launched
 
 - Instances from the following modded Minecraft launchers:
@@ -204,9 +203,6 @@ hide = true
 
 > [!TIP]
 > To run a script with spaces in the launch command, you will need to use `\\` before any space characters, e.g. `launch_command = "/home/user/GOG\\ Games/Stardew\\ Valley/start.sh"`. Other options can be passed in directly without escaping spaces.
-
-> [!INFO]
-> Note that `launch_env` only takes effect on games that are invoked directly by the launch command (defined either in the config file or discovered). For discovered games, only itch.io games are currently supported. All other discovered games are invoked indirectly and the custom environment variables may not be respected in those cases.
 
 ### Sorting
 
