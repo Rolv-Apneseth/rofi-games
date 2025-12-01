@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 ---
 ## [unreleased]
 
+### Bug Fixes
+
+- update `lib_game_detector` to not fail on a single invalid steam library (#54) - ([1c0dcd4](https://github.com/rolv-apneseth/rofi-games/commit/1c0dcd4781fd19a3eb19e4a0fae9a0f4f52673a6))
+
+---
+## [1.16.0](https://github.com/rolv-apneseth/rofi-games/compare/v1.15.0..v1.16.0) - 2025-11-15
+
 ### Features
 
 - update `lib_game_detector` for `Itch` support (#51) - ([9c14cea](https://github.com/rolv-apneseth/rofi-games/commit/9c14cea049c52631a6eb4f54fdc2b08e7a40d29a))
