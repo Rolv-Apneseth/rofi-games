@@ -17,15 +17,20 @@ pub struct Config {
     hide_entries_without_box_art: Option<bool>,
     fallback_to_icons: Option<bool>,
     box_art_dir: Option<String>,
+
+    #[serde(default)]
     entries: Vec<ConfigEntry>,
 
+    #[serde(default)]
     sort: SortConfig,
 }
 
 #[derive(Deserialize, Debug, Default)]
 struct SortConfig {
-    order: Option<SortOrder>,
-    reverse: Option<bool>,
+    #[serde(default)]
+    order: SortOrder,
+    #[serde(default)]
+    reverse: bool,
 }
 
 #[derive(Debug, Default, Clone, Deserialize)]
@@ -233,8 +238,8 @@ impl Config {
 
     /// Sort entries.
     pub fn sort_entries(&self, entries: &mut [GameWithData]) {
-        let sort_order = self.sort.order.clone().unwrap_or_default();
-        let reverse = self.sort.reverse.unwrap_or_default();
+        let sort_order = &self.sort.order;
+        let reverse = self.sort.reverse;
 
         // NOTE: All sorting methods fallback to alphabetical sort for equal entries
         fn fallback_alphabetical(a: &GameWithData, b: &GameWithData) -> Ordering {
@@ -708,5 +713,21 @@ pub mod test_config {
         assert!(entries.iter().any(|e| e.title == new_titles[0]));
         assert!(entries.iter().any(|e| e.title == new_titles[1]));
         assert!(!entries.iter().any(|e| e.title == new_titles[2]));
+    }
+
+    #[test]
+    fn test_config_uses_defaults() {
+        assert!(
+            toml::from_str::<Config>("").is_ok(),
+            "must support not including fields"
+        );
+
+        assert!(
+            toml::from_str::<Config>("[sort]\nreverse=true")
+                .unwrap()
+                .sort
+                .reverse,
+            "cannot set _only_ reverse value on `sort`"
+        );
     }
 }
