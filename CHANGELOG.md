@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 
 ### Bug Fixes
 
+- config should still be valid if `sort` or `entries` isn't defined - ([45ad6fd](https://github.com/rolv-apneseth/rofi-games/commit/45ad6fd90c26e958b82f942ec36dffb457d70921))
+
+### Continuous Integration
+
+- update package lists before trying to install `libpango` - ([241ea87](https://github.com/rolv-apneseth/rofi-games/commit/241ea87680dca6760b0509b0caa200cba0f95af9))
+
+---
+## [1.16.1](https://github.com/rolv-apneseth/rofi-games/compare/v1.16.0..v1.16.1) - 2025-12-01
+
+### Bug Fixes
+
 - update `lib_game_detector` to not fail on a single invalid steam library (#54) - ([1c0dcd4](https://github.com/rolv-apneseth/rofi-games/commit/1c0dcd4781fd19a3eb19e4a0fae9a0f4f52673a6))
 
 ---
