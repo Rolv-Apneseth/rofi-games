@@ -20,7 +20,7 @@ jobs:
               run: rustup toolchain install stable
 
             - name: Install libpango
-              run: sudo apt-get install libpango1.0-dev
+              run: sudo apt-get update && sudo apt-get install libpango1.0-dev
 
             - name: Cache dependencies
               uses: Swatinem/rust-cache@v2
