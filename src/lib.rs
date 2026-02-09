@@ -250,7 +250,7 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
 
         // Validate box art path
         let path_str = {
-            let path = entry.path_box_art.as_ref()?;
+            let path = entry.path_box_art.as_ref().or(entry.path_icon.as_ref())?;
             if !path.is_file() {
                 warn!("path to box art for '{}' does not exist", entry.title);
                 return None;
