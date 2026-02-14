@@ -21,16 +21,6 @@ LICENSES_DIR := "/usr/share/licenses/" + PKGNAME
 PLUGINS_DIR := `pkg-config --variable pluginsdir rofi || if test -d "/usr/lib64"; then echo "/usr/lib64/rofi"; else echo "/usr/lib/rofi"; fi`
 PLUGIN_PATH := join(PLUGINS_DIR, PLUGIN_NAME)
 
-# Set rust flags if running a version of `rofi` with changes newer than the base `1.7.5`
-# See https://github.com/SabrinaJewson/rofi-mode.rs/issues/8#event-11112343153
-# Examples of version outputs
-#     rofi: Version: 1.7.5
-#     rofi(wayland): Version: 1.7.5+wayland2
-#     rofi-git: Version: 1.7.5-187-gb43a82f8 (makepkg)
-#     rofi-lbonn-wayland-git: Version: 1.7.5+wayland2-154-g36621af0 (makepkg)
-
-RUSTFLAGS := if `rofi -version` =~ '^Version: 1\.7\.5(?:\+wayland2)?$' { "" } else { "--cfg rofi_next" }
-
 # COMMANDS -----------------------------------------------------------------------------------------
 
 # List commands
@@ -39,13 +29,14 @@ default:
 
 # Build
 build:
-    RUSTFLAGS="{{ RUSTFLAGS }}" cargo build --release --lib
+    cargo build --release --lib
 
+# Build with more file size optimisations - requires nightly toolchain
 build-nightly:
-    RUSTFLAGS="{{ RUSTFLAGS }}" cargo +nightly build -Z build-std=std,panic_abort -Z build-std-features="optimize_for_size" --release --lib
+    cargo +nightly build --release --lib -Z build-std=std,panic_abort -Z build-std-features="optimize_for_size"
 
 # Build + install
-install: build
+install: build && clean
     # Plugin
     install -DT "target/release/{{ LIB_NAME }}" "{{ clean(PKGDIR + "/" + PLUGIN_PATH) }}"
 
@@ -55,8 +46,6 @@ install: build
 
     # License
     install -Dt "{{ PKGDIR }}{{ LICENSES_DIR }}" LICENSE
-
-    cargo clean
 
 # Uninstall
 uninstall:
@@ -79,7 +68,7 @@ test-bare:
 
 # Rebuild and replace plugin file whenever a `.rs` file is updated
 develop:
-    fd --extension rs | entr -s 'RUSTFLAGS="{{ RUSTFLAGS }}" cargo build --lib && sudo cp --force target/debug/{{ LIB_NAME }} {{ PLUGIN_PATH }}'
+    fd --extension rs | entr -s 'cargo build --lib && sudo cp --force target/debug/{{ LIB_NAME }} {{ PLUGIN_PATH }}'
 
 # Replace theme files whenever a `.rasi` file is updated
 develop-themes:

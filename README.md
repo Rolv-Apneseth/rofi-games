@@ -56,11 +56,12 @@ Uninstall with `sudo just uninstall`
 git clone https://github.com/Rolv-Apneseth/rofi-games.git
 cd rofi-games
 cargo build --release --lib
-sudo cp target/release/librofi_games.so /usr/lib/rofi/games.so
+sudo cp target/release/librofi_games.so /usr/lib64/rofi/games.so
 ```
 
-- If you are using the latest changes from the `rofi` repo (e.g. `rofi-lbonn-wayland-git`, `rofi-git`), then the build step needs to be preceded by `RUSTFLAGS="--cfg rofi_next"` for it to work
-- The last `cp` command assumes that the `rofi` plugins directory is `/usr/lib/rofi`, which may not be the case for you. Use `pkg-config --variable pluginsdir rofi` to find the one for your system, though if there is no output from that command, you may need to just try `/usr/lib64/rofi` or `/usr/lib/rofi` (the install script in the `justfile` falls back to these in that order).
+- The last `cp` command assumes that the `rofi` plugins directory is `/usr/lib64/rofi`, which may not be the case for you.
+  Use `pkg-config --variable pluginsdir rofi` to find the one for your system, though if there is no output from that command,
+  you may need to just try `/usr/lib64/rofi` or `/usr/lib/rofi` (the install script in the `justfile` falls back to these in that order).
 
 ## Theme
 
