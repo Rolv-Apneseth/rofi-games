@@ -7,7 +7,7 @@ use config::read_config;
 use lib_game_detector::get_detector;
 use redb::Database;
 use rofi_mode::{Action, Event};
-use tracing::{debug, error, warn};
+use tracing::{debug, error, info, warn};
 use tracing_subscriber::{EnvFilter, fmt, prelude::*};
 
 use std::{
@@ -137,6 +137,8 @@ impl<'rofi> rofi_mode::Mode<'rofi> for Mode<'rofi> {
             )
             .with(EnvFilter::from_default_env())
             .init();
+
+        info!("{} v{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
 
         let db = init_db().map_err(|e| error!("failed initialising DB: {e}"))?;
         let config = read_config();
