@@ -23,6 +23,9 @@ pub struct Config {
 
     #[serde(default)]
     sort: SortConfig,
+
+    #[serde(default)]
+    launchers: HashMap<String, LauncherConfig>,
 }
 
 #[derive(Deserialize, Debug, Default)]
@@ -59,6 +62,18 @@ struct ConfigEntry {
     hide: Option<bool>,
 }
 
+#[derive(Deserialize, Debug, Default)]
+struct LauncherConfig {
+    /// Extra command-line arguments to pass to this launcher.
+    #[serde(default)]
+    extra_args: Vec<String>,
+    /// Whether to hide all entries belonging to this launcher.
+    #[serde(default)]
+    hide: bool,
+    /// Fallback box art for any entry from this launcher which does not have one.
+    path_fallback_box_art: Option<String>,
+}
+
 pub fn read_config() -> Option<Config> {
     let path_config = config_dir()?.join("rofi-games").join("config.toml");
 
@@ -85,8 +100,26 @@ pub fn read_config() -> Option<Config> {
 }
 
 impl Config {
+    /// Used to map an optional path config option, while taking [`Self::box_art_dir`] into account.
+    fn map_opt_path(&self, opt_path: Option<impl Into<PathBuf>>) -> Option<PathBuf> {
+        let mut path = opt_path?.into();
+
+        if let Some(path_dir) = self.box_art_dir.as_ref().map(PathBuf::from) {
+            if path_dir.is_absolute() && path_dir.is_dir() {
+                path = path_dir.join(path);
+            } else {
+                warn!(
+                    "The given `box_art_dir` config option is not pointing to an absolute path or is not a valid directory."
+                );
+            };
+        };
+
+        Some(path)
+    }
+
     /// Apply config options to the given entries.
     pub fn apply(&self, entries: &mut Vec<GameWithData>) {
+        self.apply_custom_launcher_configs(entries);
         self.apply_custom_entries(entries);
 
         let hide_entries_without_box_art = self.hide_entries_without_box_art.unwrap_or(false);
@@ -105,6 +138,65 @@ impl Config {
         }
 
         self.sort_entries(entries);
+    }
+
+    /// Modify the given game entries with launcher-specific options parsed from the config.
+    fn apply_custom_launcher_configs(&self, entries: &mut Vec<GameWithData>) {
+        if self.launchers.is_empty() {
+            return;
+        }
+
+        for (launcher_slug, conf) in self.launchers.iter() {
+            use SupportedLaunchers::*;
+
+            debug!("Applying custom config for {launcher_slug}");
+
+            let sources = match launcher_slug.as_str() {
+                "steam" => vec![Steam],
+                "lutris" => vec![Lutris],
+                "bottles" => vec![Bottles],
+                "heroic" => vec![
+                    HeroicGamesAmazon,
+                    HeroicGamesEpic,
+                    HeroicGamesGOG,
+                    HeroicGamesSideload,
+                ],
+                "itch" => vec![Itch],
+                "at" => vec![MinecraftAT],
+                "prism" => vec![MinecraftPrism],
+                _ => {
+                    error!(
+                        "Could not find launcher matching: '{launcher_slug}'. \
+                        Valid launcher options: steam, lutris, bottles, heroic, itch, atlauncher, \
+                        prism."
+                    );
+                    continue;
+                }
+            };
+
+            if conf.hide {
+                debug!("Removing all entries for {launcher_slug}");
+                entries.retain(|e| !sources.contains(&e.source));
+                continue;
+            }
+
+            // Determine path to fallback box art, taking `self.box_art_dir` into account
+            let path_fallback_box_art = self.map_opt_path(conf.path_fallback_box_art.as_ref());
+            if let Some(p) = path_fallback_box_art.as_ref()
+                && !p.is_file()
+            {
+                error!("Could not find fallback box art for '{launcher_slug}' at {p:?}");
+            }
+
+            debug!("Modifying all entries for {launcher_slug}");
+            for entry in entries.iter_mut().filter(|e| sources.contains(&e.source)) {
+                entry.launch_command.args(conf.extra_args.iter());
+                entry.path_box_art = entry
+                    .path_box_art
+                    .take()
+                    .or_else(|| path_fallback_box_art.clone());
+            }
+        }
     }
 
     /// Modify the given game entries with custom entries parsed from the config.
@@ -133,7 +225,7 @@ impl Config {
                 return;
             }
 
-            let (mut opt_command, mut path_box_art, mut path_game_dir) = (None, None, None);
+            let (mut opt_command, mut path_game_dir) = (None, None);
 
             // REQUIRED FIELDS
             // Launch command
@@ -149,27 +241,11 @@ impl Config {
             }
 
             // Box art
-            if let Some(p) = opt_path_box_art {
-                let path = match self.box_art_dir.as_ref() {
-                    Some(d) => {
-                        let path_dir = PathBuf::from(d);
-                        if path_dir.is_absolute() {
-                            path_dir.join(p)
-                        } else {
-                            warn!("Ignoring the given `box_art_dir` config option as it is not pointing to an absolute path");
-                            PathBuf::from(p)
-                        }
-                    }
-                    None => PathBuf::from(p),
-                };
-
-                if path.is_file() {
-                    path_box_art = Some(path);
-                } else {
-                    error!("The box art path provided for '{title}' could not be found at: {path:?}");
-                    return;
-                };
-            };
+            let path_box_art = self.map_opt_path(opt_path_box_art.as_ref());
+            if let Some(p) = path_box_art.as_ref() && !p.is_file() {
+                error!("The box art path provided for '{title}' could not be found at: {p:?}");
+                return;
+            }
 
             // OPTIONAL FIELDS
             // GameWrapper directory
@@ -713,6 +789,93 @@ pub mod test_config {
         assert!(entries.iter().any(|e| e.title == new_titles[0]));
         assert!(entries.iter().any(|e| e.title == new_titles[1]));
         assert!(!entries.iter().any(|e| e.title == new_titles[2]));
+    }
+
+    #[test]
+    fn test_launcher_config_hide() {
+        let mut entries = get_dummy_games();
+        let old_len = entries.len();
+
+        Config {
+            launchers: HashMap::from([("steam".into(), LauncherConfig::default())]),
+            ..Default::default()
+        }
+        .apply(&mut entries);
+        Config {
+            launchers: HashMap::from([(
+                "lutris".into(),
+                LauncherConfig {
+                    hide: true,
+                    ..Default::default()
+                },
+            )]),
+            ..Default::default()
+        }
+        .apply(&mut entries);
+        assert_eq!(entries.len(), old_len);
+
+        Config {
+            launchers: HashMap::from([(
+                "steam".into(),
+                LauncherConfig {
+                    hide: true,
+                    ..Default::default()
+                },
+            )]),
+            ..Default::default()
+        }
+        .apply(&mut entries);
+        assert_eq!(entries.len(), 0);
+    }
+
+    #[test]
+    fn test_launcher_config_fallback_box_art() {
+        let mut entries = get_dummy_games();
+        let conf = Config {
+            launchers: HashMap::from([(
+                "steam".into(),
+                LauncherConfig {
+                    path_fallback_box_art: Some(file!().into()),
+                    ..Default::default()
+                },
+            )]),
+            ..Default::default()
+        };
+
+        // Only applied if no box art present
+        conf.apply(&mut entries);
+        for e in entries.iter_mut() {
+            assert_ne!(e.path_box_art, Some(file!().into()));
+            e.path_box_art = None;
+        }
+
+        conf.apply(&mut entries);
+
+        for e in entries {
+            assert_eq!(e.path_box_art, Some(file!().into()));
+        }
+    }
+
+    #[test]
+    fn test_launcher_config_args() {
+        let mut entries = get_dummy_games();
+
+        Config {
+            launchers: HashMap::from([(
+                "steam".into(),
+                LauncherConfig {
+                    extra_args: vec!["--test-arg=test".to_owned()],
+                    ..Default::default()
+                },
+            )]),
+            ..Default::default()
+        }
+        .apply(&mut entries);
+
+        for e in entries.iter_mut() {
+            let last_arg = e.launch_command.get_args().last().unwrap();
+            assert_eq!(last_arg.to_string_lossy(), "--test-arg=test");
+        }
     }
 
     #[test]
