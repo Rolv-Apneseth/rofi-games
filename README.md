@@ -152,6 +152,16 @@ order = "frecency"
  # Option to reverse the result of the sort order. Ignored if sort order is none.
 reverse = false
 
+# Launcher specific settings (Steam)
+# Possible keys include: steam, lutris, bottles, heroic, itch, atlauncher, prism
+[launchers.steam]
+# Hide all entries from this launcher
+hide = false
+# Extra arguments passed to the launch command of all entries from this launcher
+extra_args = ["-silent"]
+# Fallback box art for entries from this launcher which don't have one - also checks box_art_dir
+path_fallback_box_art = "/home/rolv/images/steam.png"
+
 # Define a new custom entry
 [[entries]]
 title = "GDLauncher"
