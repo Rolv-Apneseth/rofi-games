@@ -132,7 +132,7 @@ Custom entries, for unsupported games (or technically anything you want), can be
 # Allows hiding any entries which don't have box art images defined
 hide_entries_without_box_art = false
 # Directory to find box art in if an absolute path is not given
-box_art_dir = "/home/rolv/.config/rofi-games/box-art"
+box_art_dir = "~/.config/rofi-games/box-art"
 # If the box art for a game is not found, fallback to using the icon
 fallback_to_icons = true
 # Show the source launcher next to the title of each entry
@@ -160,7 +160,7 @@ hide = false
 # Extra arguments passed to the launch command of all entries from this launcher
 extra_args = ["-silent"]
 # Fallback box art for entries from this launcher which don't have one - also checks box_art_dir
-path_fallback_box_art = "/home/rolv/images/steam.png"
+path_fallback_box_art = "~/images/steam.png"
 
 # Define a new custom entry
 [[entries]]
@@ -175,7 +175,7 @@ path_game_dir = "/opt/GDLauncher"
 # Change box art for a title
 [[entries]]
 title = "Cyberpunk 2077"
-path_box_art = "/home/rolv/images/cyberpunk.png"
+path_box_art = "~/images/cyberpunk.png"
 
 # Run the game with a different SDL driver
 [[entries]]
