@@ -7,10 +7,15 @@ All notable changes to this project will be documented in this file.
 ### Bug Fixes
 
 - **(lib_game_detector)** use actual instance names for Prism - ([6711492](https://github.com/rolv-apneseth/rofi-games/commit/6711492a6f816accc70d101d56530e3182b77c1d))
+- **(lib_game_detector)** differentiate between Lutris entries which share an executable - ([4c09e9c](https://github.com/rolv-apneseth/rofi-games/commit/4c09e9c2faad1d084c33cb9dd3b184696b28b655))
 
 ### Features
 
 - log package version to add context to users' log output (#60) - ([5a8b373](https://github.com/rolv-apneseth/rofi-games/commit/5a8b37357111a6a77e1d8e600666dd4e25cb44e1))
+
+### Miscellaneous Tasks
+
+- update dep `toml` - ([5d9b2cf](https://github.com/rolv-apneseth/rofi-games/commit/5d9b2cf0ebc5d067f7287d0a8453ea2805dfae11))
 
 ---
 ## [1.16.2](https://github.com/rolv-apneseth/rofi-games/compare/v1.16.1..v1.16.2) - 2026-01-15
