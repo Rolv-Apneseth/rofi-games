@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 ### Features
 
 - log package version to add context to users' log output (#60) - ([5a8b373](https://github.com/rolv-apneseth/rofi-games/commit/5a8b37357111a6a77e1d8e600666dd4e25cb44e1))
+- support for launcher-specific configuration options (#61) - ([21c78d3](https://github.com/rolv-apneseth/rofi-games/commit/21c78d312c065419034d9a0b0c3c97a0eb078d6f))
 
 ### Miscellaneous Tasks
 
