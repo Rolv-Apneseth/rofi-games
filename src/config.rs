@@ -7,7 +7,10 @@ use std::{
 };
 use tracing::{debug, error, trace, warn};
 
-use crate::{data::GameWithData, utils::now};
+use crate::{
+    data::GameWithData,
+    utils::{expand_tilde, now},
+};
 
 #[derive(Deserialize, Debug, Default)]
 pub struct Config {
@@ -102,9 +105,10 @@ pub fn read_config() -> Option<Config> {
 impl Config {
     /// Used to map an optional path config option, while taking [`Self::box_art_dir`] into account.
     fn map_opt_path(&self, opt_path: Option<impl Into<PathBuf>>) -> Option<PathBuf> {
-        let mut path = opt_path?.into();
+        let mut path = expand_tilde(opt_path?.into())?;
 
-        if let Some(path_dir) = self.box_art_dir.as_ref().map(PathBuf::from) {
+        if let Some(path_dir) = self.box_art_dir.as_ref().and_then(expand_tilde) {
+            warn!("is_abs: {}", path_dir.is_absolute());
             if path_dir.is_absolute() && path_dir.is_dir() {
                 path = path_dir.join(path);
             } else {
