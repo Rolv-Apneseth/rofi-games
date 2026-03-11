@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - **(lib_game_detector)** use actual instance names for Prism - ([6711492](https://github.com/rolv-apneseth/rofi-games/commit/6711492a6f816accc70d101d56530e3182b77c1d))
 - **(lib_game_detector)** differentiate between Lutris entries which share an executable - ([4c09e9c](https://github.com/rolv-apneseth/rofi-games/commit/4c09e9c2faad1d084c33cb9dd3b184696b28b655))
+- **(lib_game_detector)** better support for Steam on different distributions by following symlinks (#64) - ([df5d91e](https://github.com/rolv-apneseth/rofi-games/commit/df5d91e7f0a77f69c28b5fbb5e26b1b65874ab29))
 
 ### Features
 
