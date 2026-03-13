@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 ---
 ## [unreleased]
 
+### Miscellaneous Tasks
+
+- remove unnecessary log used - ([6f5f547](https://github.com/rolv-apneseth/rofi-games/commit/6f5f5479cfb832f13d1ddb3cd861e8bdef2916e8))
+
+---
+## [1.17.0](https://github.com/rolv-apneseth/rofi-games/compare/v1.16.2..v1.17.0) - 2026-03-11
+
 ### Bug Fixes
 
 - **(lib_game_detector)** use actual instance names for Prism - ([6711492](https://github.com/rolv-apneseth/rofi-games/commit/6711492a6f816accc70d101d56530e3182b77c1d))
