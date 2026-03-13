@@ -108,7 +108,6 @@ impl Config {
         let mut path = expand_tilde(opt_path?.into())?;
 
         if let Some(path_dir) = self.box_art_dir.as_ref().and_then(expand_tilde) {
-            warn!("is_abs: {}", path_dir.is_absolute());
             if path_dir.is_absolute() && path_dir.is_dir() {
                 path = path_dir.join(path);
             } else {
