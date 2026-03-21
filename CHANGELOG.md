@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 ---
 ## [unreleased]
 
+### Bug Fixes
+
+- **(lib_game_detector)** avoid failing when Lutris entries have no game directory specified (#65) - ([6aa1d19](https://github.com/rolv-apneseth/rofi-games/commit/6aa1d19d622ee8bee965cfab4c64602060aeafc8))
+
+---
+## [1.17.1](https://github.com/rolv-apneseth/rofi-games/compare/v1.17.0..v1.17.1) - 2026-03-13
+
 ### Miscellaneous Tasks
 
 - remove unnecessary log used - ([6f5f547](https://github.com/rolv-apneseth/rofi-games/commit/6f5f5479cfb832f13d1ddb3cd861e8bdef2916e8))
