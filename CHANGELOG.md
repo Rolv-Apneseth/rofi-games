@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 ---
-## [unreleased]
+## [1.17.2](https://github.com/rolv-apneseth/rofi-games/compare/v1.17.1..v1.17.2) - 2026-03-21
 
 ### Bug Fixes
 
