@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 ---
+## [unreleased]
+
+### Bug Fixes
+
+- **(lib_game_detector)** fix Steam box art identification for language-specific filenames - ([3d1b2fc](https://github.com/rolv-apneseth/rofi-games/commit/3d1b2fc33828c7de628a9480d999839e6d598216))
+
+---
 ## [1.17.2](https://github.com/rolv-apneseth/rofi-games/compare/v1.17.1..v1.17.2) - 2026-03-21
 
 ### Bug Fixes
