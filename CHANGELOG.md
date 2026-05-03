@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 
 ### Bug Fixes
 
+- **(lib_game_detector)** ignore entries which are uninstalled, or originate from Steam - ([635e0a3](https://github.com/rolv-apneseth/rofi-games/commit/635e0a39f782f00fa0fadcbf128be2c3e8bd651a))
+
+### Miscellaneous Tasks
+
+- **(deps)** bump `redb` to v4.1 - ([d5442e0](https://github.com/rolv-apneseth/rofi-games/commit/d5442e0ddb690ad312b5ddb2b0517de6bd0db281))
+
+---
+## [1.17.3](https://github.com/rolv-apneseth/rofi-games/compare/v1.17.2..v1.17.3) - 2026-03-31
+
+### Bug Fixes
+
 - **(lib_game_detector)** fix Steam box art identification for language-specific filenames - ([3d1b2fc](https://github.com/rolv-apneseth/rofi-games/commit/3d1b2fc33828c7de628a9480d999839e6d598216))
 
 ---
