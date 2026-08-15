@@ -3,12 +3,13 @@ alias bn := build-nightly
 alias i := install
 alias u := uninstall
 alias c := clean
-alias t := test
-alias tb := test-bare
+alias r := run
+alias rb := run-bare
 alias d := develop
 alias dt := develop-themes
 alias f := format
 alias l := lint
+alias t := test
 
 # VARIABLES ----------------------------------------------------------------------------------------
 
@@ -70,11 +71,11 @@ clean:
     cargo clean --verbose
 
 # Run with specific theme
-test THEME=("games-default"):
+run THEME=("games-default"):
     rofi -modi games -show games -theme {{ THEME }}
 
 # Run with no theme
-test-bare:
+run-bare:
     rofi -modi games -show games -show-icons
 
 # Rebuild and replace plugin file whenever a `.rs` file is updated
@@ -85,6 +86,10 @@ develop:
 develop-themes:
     fd --extension rasi | entr -s 'sudo cp --force themes/*.rasi {{ THEMES_DIR }}'
 
+# Cargo check
+check:
+    cargo check
+
 # Format
 format:
     cargo +nightly fmt
@@ -92,3 +97,15 @@ format:
 # Lint
 lint:
     cargo clippy --all -- -D warnings 
+
+# Cargo deny
+deny:
+    cargo deny check
+
+# Cargo msrv
+msrv:
+    cargo msrv verify
+
+# Test and other checks
+test: check lint format deny msrv
+    cargo test
