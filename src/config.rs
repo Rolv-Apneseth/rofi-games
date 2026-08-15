@@ -323,6 +323,8 @@ impl Config {
                         launch_command,
                         path_box_art,
                         path_game_dir,
+                        path_hero: None,
+                        path_header: None,
                         path_icon: None,
                         // Steam used as a default
                         source: SupportedLaunchers::Steam,
@@ -447,6 +449,8 @@ pub mod test_config {
                         title: i.to_string(),
                         path_box_art: Some(PathBuf::default()),
                         path_game_dir: Some(PathBuf::default()),
+                        path_hero: Some(PathBuf::default()),
+                        path_header: Some(PathBuf::default()),
                         launch_command: Command::new(CMD),
                         path_icon: Some(PathBuf::default()),
                         source: SupportedLaunchers::Steam,
