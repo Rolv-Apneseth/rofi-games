@@ -1,0 +1,31 @@
+[graph]
+all-features = false
+no-default-features = false
+
+[output]
+feature-depth = 1
+
+[licenses]
+allow = [
+  "AGPL-3.0-only",
+  "AGPL-3.0-or-later",
+  "Apache-2.0 WITH LLVM-exception",
+  "Apache-2.0",
+  "MIT",
+  "MPL-2.0",
+  "Unicode-3.0",
+  "Zlib",
+]
+confidence-threshold = 0.8
+
+[bans]
+multiple-versions = "warn"
+wildcards = "allow"
+highlight = "all"
+workspace-default-features = "allow"
+external-default-features = "allow"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-git = []
