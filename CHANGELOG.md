@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 ---
 ## [unreleased]
 
+### Continuous Integration
+
+- add workflow to audit deps using cargo deny - ([fc7df80](https://github.com/rolv-apneseth/rofi-games/commit/fc7df808ab25d1b809f1122256602cd904be74ca))
+
+### Features
+
+- **(just)** add test recipe - ([206a5c5](https://github.com/rolv-apneseth/rofi-games/commit/206a5c5a95bce1a180ce73617319b4d09e1e8b38))
+- **(lib_game_detector)** added support for parsing hero and header images - ([6de84a7](https://github.com/rolv-apneseth/rofi-games/commit/6de84a7fda3c3a05250cfc6d90c61136bb0b3e9f))
+
+### Miscellaneous Tasks
+
+- bump MSRV to 1.92 - ([11716f0](https://github.com/rolv-apneseth/rofi-games/commit/11716f0e9d117754df5541c819b8b05bf6c05963))
+- bump deps - ([19d510e](https://github.com/rolv-apneseth/rofi-games/commit/19d510eb29338eacb8cdf1274db83c8763ed39d9))
+
+---
+## [1.17.4](https://github.com/rolv-apneseth/rofi-games/compare/v1.17.3..v1.17.4) - 2026-05-03
+
 ### Bug Fixes
 
 - **(lib_game_detector)** ignore entries which are uninstalled, or originate from Steam - ([635e0a3](https://github.com/rolv-apneseth/rofi-games/commit/635e0a39f782f00fa0fadcbf128be2c3e8bd651a))
