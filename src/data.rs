@@ -65,6 +65,7 @@ impl GameWithData {
             MinecraftPrism => "Prism Launcher",
             MinecraftAT => "ATLauncher",
             Itch => "Itch",
+            Faugus => "Faugus",
         }
     }
 }

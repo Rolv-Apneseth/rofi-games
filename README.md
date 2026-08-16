@@ -117,6 +117,8 @@ The following sources are currently supported:
   - None of these entries have box art or icons, as they are specified as URLs rather than local files.
   - You may use `launch_env` in custom entries to control/override the environment for the game before it is launched
 
+- Faugus launcher
+
 - Instances from the following modded Minecraft launchers:
     1. Prism Launcher
     2. ATLauncher
