@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 ---
 ## [unreleased]
 
+### Features
+
+- **(lib_game_detector)** add support for Faugus launcher - ([cd9cd5b](https://github.com/rolv-apneseth/rofi-games/commit/cd9cd5b2e9b4268eb3f57ab514d21d7decae45fe))
+
+---
+## [1.17.5](https://github.com/rolv-apneseth/rofi-games/compare/v1.17.4..v1.17.5) - 2026-08-15
+
 ### Continuous Integration
 
 - add workflow to audit deps using cargo deny - ([fc7df80](https://github.com/rolv-apneseth/rofi-games/commit/fc7df808ab25d1b809f1122256602cd904be74ca))
