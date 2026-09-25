@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 
 ### Features
 
+- **(lib_game_detector)** add support for custom bottles directory - ([d6cc99a](https://github.com/rolv-apneseth/rofi-games/commit/d6cc99aee6070b164afeb9fb2255d581c4307581))
+
+### Miscellaneous Tasks
+
+- bump deps - ([4ff7f45](https://github.com/rolv-apneseth/rofi-games/commit/4ff7f45cfdd9ad3d651f65dae35cf2cb90aa6de9))
+
+---
+## [1.18.0](https://github.com/rolv-apneseth/rofi-games/compare/v1.17.5..v1.18.0) - 2026-08-16
+
+### Features
+
 - **(lib_game_detector)** add support for Faugus launcher - ([cd9cd5b](https://github.com/rolv-apneseth/rofi-games/commit/cd9cd5b2e9b4268eb3f57ab514d21d7decae45fe))
 
 ---
