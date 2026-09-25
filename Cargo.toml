@@ -17,7 +17,7 @@ toml = { version = "1.0", default-features = false, features = [
   "parse",
   "serde",
 ] }
-dirs = "6.0"
+dirs = "7.0"
 serde = { version = "1.0", features = ["derive"] }
 shlex = "2.0"
 redb = "4.1"
